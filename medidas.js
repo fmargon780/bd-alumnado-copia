@@ -3,8 +3,8 @@
    Si no hay permiso de escritura, no se guarda y no pasa nada. */
 (function () {
   'use strict';
-  var NOMBRE = '_medidas-web.json', NOMBRE_FICHA = '_medidas-ficha.json', NOMBRE_LISTADO = '_medidas-listado.json', NOMBRE_HOY = '_medidas-hoy.json', MAX = 30;
-  var datos = { version: '', abrir: [], buscar: [] }, fichas = { version: '', ficha: [] }, listados = { version: '', listado: [] }, hoys = { version: '', hoy: [] };
+  var NOMBRE = '_medidas-web.json', NOMBRE_FICHA = '_medidas-ficha.json', NOMBRE_LISTADO = '_medidas-listado.json', NOMBRE_HOY = '_medidas-hoy.json', NOMBRE_REVISION = '_medidas-revision.json', MAX = 30;
+  var datos = { version: '', abrir: [], buscar: [] }, fichas = { version: '', ficha: [] }, listados = { version: '', listado: [] }, hoys = { version: '', hoy: [] }, revisiones = { version: '', revision: [] };
   var pendiente = {};
 
   function entero(x) { return Math.max(0, Math.min(600000, Math.round(Number(x) || 0))); }
@@ -24,6 +24,7 @@
     ficha: function (ms) { apuntar(fichas.ficha, ms, NOMBRE_FICHA, fichas); },
     listado: function (ms) { apuntar(listados.listado, ms, NOMBRE_LISTADO, listados); },
     hoy: function (ms) { apuntar(hoys.hoy, ms, NOMBRE_HOY, hoys); },
-    resumen: function () { return { abrirMs: mediana(datos.abrir), buscarMs: mediana(datos.buscar), fichaMs: mediana(fichas.ficha), listadoMs: mediana(listados.listado), hoyMs: mediana(hoys.hoy), abiertas: datos.abrir.length, busquedas: datos.buscar.length, fichas: fichas.ficha.length, listados: listados.listado.length, hoys: hoys.hoy.length }; }
+    revision: function (ms) { apuntar(revisiones.revision, ms, NOMBRE_REVISION, revisiones); },
+    resumen: function () { return { abrirMs: mediana(datos.abrir), buscarMs: mediana(datos.buscar), fichaMs: mediana(fichas.ficha), listadoMs: mediana(listados.listado), hoyMs: mediana(hoys.hoy), revisionMs: mediana(revisiones.revision), abiertas: datos.abrir.length, busquedas: datos.buscar.length, fichas: fichas.ficha.length, listados: listados.listado.length, hoys: hoys.hoy.length, revisiones: revisiones.revision.length }; }
   };
 })();

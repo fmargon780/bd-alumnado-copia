@@ -1,0 +1,24 @@
+/* «Revisión» de la web nueva (instrucción 138, parte 3): la de hoy, a todo el ancho. Los colores son los de Estilos.html de la app de hoy. */
+:root { --rojo: #b3261e; --ok: #2e7d4f; --acento: #2266aa; }
+.pestanas-rev { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.pestanas-rev button { font: inherit; padding: 6px 14px; border: 1px solid var(--linea); border-radius: 8px; background: #fff; cursor: pointer; color: var(--azul); }
+.pestanas-rev button.actual { background: var(--marca); font-weight: 600; border-color: var(--azul); }
+.pestanas-rev .cuenta { display: inline-block; min-width: 18px; margin-left: 6px; padding: 0 6px; border-radius: 9px; background: var(--rojo); color: #fff; font-size: 11.5px; text-align: center; }
+.pestanas-rev .cuenta.cero { background: #e4f4e9; color: var(--ok); }
+table.listado th.ordena { cursor: pointer; }
+table.listado td a { color: var(--acento); }
+td.frase-revision { max-width: 60em; }
+tr.fila-revisada td { color: var(--suave); }
+.meta-revisado { font-size: 12.5px; color: var(--suave); }
+a.cambiar-app { font-size: 12px; padding: 1px 8px; border: 1px solid var(--acento); border-radius: 6px; color: var(--acento); text-decoration: none; background: #fff; white-space: nowrap; }
+details.cuadre-desplegable { margin-top: 14px; border-top: 1px solid var(--linea); padding-top: 8px; }
+details.cuadre-desplegable > summary { cursor: pointer; font-weight: 600; }
+details.cuadre-tabla { margin: 8px 0; }
+details.cuadre-tabla > summary { cursor: pointer; }
+.cuadre-estado { color: var(--ok); font-weight: 400; } .cuadre-estado.no { color: var(--rojo); font-weight: 600; }
+.cuadre-titulo { font-size: 14px; margin: 14px 0 4px; }
+.caja-tabla { overflow-x: auto; }
+table.cuadre-t { font-size: 12.5px; }
+tr.cuadre-no td { background: #fbe6e4; }
+.cuadre-marca { color: var(--rojo); font-weight: 600; white-space: nowrap; }
+.cuadre-vacio { color: var(--suave); }

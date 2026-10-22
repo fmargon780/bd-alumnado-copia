@@ -1,0 +1,17 @@
+/* «Quién viene» de la web nueva (instrucción 138, parte 5): lo que la pantalla de la app de hoy (quienviene.css, generado) toma de Estilos.html y esta página no tiene. */
+#quienviene { --tarjeta: #fff; --borde: #d9dee5; --texto: #1c2430; --acento: #2266aa; --ok: #2e7d4f; --aviso: #b26a00; --rojo: #b3261e; --suave: #5b6675; font-size: 14px; }
+#quienviene .oculto, .oculto { display: none !important; }
+.qv-cabecera-web { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.qv-cabecera-web select { font: inherit; padding: 5px 8px; border: 1px solid var(--linea); border-radius: 6px; background: #fff; }
+.qv-pasos { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 10px; align-items: center; }
+.qv-pasos .grupo { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.qv-pasos .grupo > b { font-size: 13px; color: var(--suave); margin-right: 2px; }
+.qv-pasos button { font: inherit; padding: 6px 12px; border: 1px solid var(--linea); border-radius: 8px; background: #fff; cursor: pointer; color: var(--azul); }
+.qv-pasos button.actual { background: var(--marca); font-weight: 600; border-color: var(--azul); }
+.qv-resumen { color: #667; font-size: 12.5px; margin: 0 0 6px; }
+#panelAvanceQuienViene { margin: 0 0 10px; }
+/* Lo que escribe se cambia en la app de hoy: los botones no están y los campos se ven apagados. */
+[data-escribe] { cursor: default; }
+button[data-escribe] { display: none; }
+#tab-quienviene input:disabled, #tab-quienviene textarea:disabled, #tab-quienviene select:disabled { opacity: .75; }
+a.cambiar-app { font-size: 12px; padding: 1px 8px; border: 1px solid #2266aa; border-radius: 6px; color: #2266aa; text-decoration: none; background: #fff; white-space: nowrap; }

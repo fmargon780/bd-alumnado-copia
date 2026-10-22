@@ -3,8 +3,8 @@
    Si no hay permiso de escritura, no se guarda y no pasa nada. */
 (function () {
   'use strict';
-  var NOMBRE = '_medidas-web.json', NOMBRE_FICHA = '_medidas-ficha.json', NOMBRE_LISTADO = '_medidas-listado.json', NOMBRE_HOY = '_medidas-hoy.json', NOMBRE_REVISION = '_medidas-revision.json', MAX = 30;
-  var datos = { version: '', abrir: [], buscar: [] }, fichas = { version: '', ficha: [] }, listados = { version: '', listado: [] }, hoys = { version: '', hoy: [] }, revisiones = { version: '', revision: [] };
+  var NOMBRE = '_medidas-web.json', NOMBRE_FICHA = '_medidas-ficha.json', NOMBRE_LISTADO = '_medidas-listado.json', NOMBRE_HOY = '_medidas-hoy.json', NOMBRE_REVISION = '_medidas-revision.json', NOMBRE_ESTADISTICAS = '_medidas-estadisticas.json', MAX = 30;
+  var datos = { version: '', abrir: [], buscar: [] }, fichas = { version: '', ficha: [] }, listados = { version: '', listado: [] }, hoys = { version: '', hoy: [] }, revisiones = { version: '', revision: [] }, estadisticas = { version: '', estadisticas: [] };
   var pendiente = {};
 
   function entero(x) { return Math.max(0, Math.min(600000, Math.round(Number(x) || 0))); }
@@ -25,6 +25,7 @@
     listado: function (ms) { apuntar(listados.listado, ms, NOMBRE_LISTADO, listados); },
     hoy: function (ms) { apuntar(hoys.hoy, ms, NOMBRE_HOY, hoys); },
     revision: function (ms) { apuntar(revisiones.revision, ms, NOMBRE_REVISION, revisiones); },
-    resumen: function () { return { abrirMs: mediana(datos.abrir), buscarMs: mediana(datos.buscar), fichaMs: mediana(fichas.ficha), listadoMs: mediana(listados.listado), hoyMs: mediana(hoys.hoy), revisionMs: mediana(revisiones.revision), abiertas: datos.abrir.length, busquedas: datos.buscar.length, fichas: fichas.ficha.length, listados: listados.listado.length, hoys: hoys.hoy.length, revisiones: revisiones.revision.length }; }
+    estadisticas: function (ms) { apuntar(estadisticas.estadisticas, ms, NOMBRE_ESTADISTICAS, estadisticas); },
+    resumen: function () { return { abrirMs: mediana(datos.abrir), buscarMs: mediana(datos.buscar), fichaMs: mediana(fichas.ficha), listadoMs: mediana(listados.listado), hoyMs: mediana(hoys.hoy), revisionMs: mediana(revisiones.revision), estadisticasMs: mediana(estadisticas.estadisticas), abiertas: datos.abrir.length, busquedas: datos.buscar.length, fichas: fichas.ficha.length, listados: listados.listado.length, hoys: hoys.hoy.length, revisiones: revisiones.revision.length, estadisticas: estadisticas.estadisticas.length }; }
   };
 })();

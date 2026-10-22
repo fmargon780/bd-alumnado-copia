@@ -1,0 +1,11 @@
+/* «Estadísticas» de la web nueva (instrucción 138, parte 4): lo que la pantalla de la app de hoy (estadisticas.css, generado) toma de Estilos.html y esta página no tiene. */
+#tab-estadisticas { --tarjeta: #fff; --borde: #d9dee5; --texto: #1c2430; --acento: #2266aa; --ok: #2e7d4f; --aviso: #b26a00; --rojo: #b3261e; --suave: #5b6675; font-size: 14px; }
+#tab-estadisticas .oculto, .oculto { display: none !important; }
+#tab-estadisticas .enlace-cabecera { font-size: 13px; color: var(--acento); cursor: pointer; white-space: nowrap; text-decoration: underline; }
+#tab-estadisticas .aviso { background: #fff4d6; border: 1px solid #e0b34a; border-radius: 6px; padding: 8px 12px; margin: 0 0 8px; }
+#tab-estadisticas .error { background: #fbe6e4; border: 1px solid var(--rojo); border-radius: 6px; padding: 8px 12px; margin: 0 0 8px; }
+/* Guardar y borrar consultas se hacen en la app de hoy hasta la fila 139. */
+#tab-estadisticas #estGuardar, #tab-estadisticas #estBorrar { display: none; }
+.est-cabecera-web { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.est-cabecera-web select { font: inherit; padding: 5px 8px; border: 1px solid var(--linea); border-radius: 6px; background: #fff; }
+a.cambiar-app { font-size: 12px; padding: 1px 8px; border: 1px solid #2266aa; border-radius: 6px; color: #2266aa; text-decoration: none; background: #fff; white-space: nowrap; }

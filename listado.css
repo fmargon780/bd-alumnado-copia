@@ -1,0 +1,13 @@
+/* El listado de la web nueva (instrucción 138): el de hoy, a todo el ancho. */
+.tarjeta { background: #fff; border: 1px solid var(--linea); border-radius: 10px; padding: 12px 16px; }
+.tarjeta select { font: inherit; padding: 6px 8px; margin: 0 8px 10px 0; border: 1px solid var(--linea); border-radius: 8px; background: #fff; }
+.filtros { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-bottom: 8px; }
+.filtros label { font-size: 13.5px; cursor: pointer; white-space: nowrap; }
+table.listado { width: 100%; border-collapse: collapse; }
+table.listado th { text-align: left; font-size: 13px; color: var(--suave); border-bottom: 1px solid var(--linea); padding: 6px 8px; }
+table.listado th.ordena { cursor: pointer; }
+table.listado td { padding: 6px 8px; border-bottom: 1px solid var(--linea); }
+table.listado tr.fila-alumno { cursor: pointer; }
+table.listado tr.fila-alumno:hover { background: var(--marca); }
+table.listado td a { color: inherit; text-decoration: none; }
+.chip { display: inline-block; font-size: 11.5px; padding: 1px 8px; margin-right: 4px; border-radius: 10px; background: var(--marca); color: var(--azul); }

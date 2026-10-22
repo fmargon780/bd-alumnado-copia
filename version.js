@@ -1,1 +1,1 @@
-window.VERSION_WEB = 'web nueva v1';
+window.VERSION_WEB = 'web nueva v3';

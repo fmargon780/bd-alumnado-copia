@@ -1,0 +1,53 @@
+/* «Hoy» de la web nueva (instrucción 138, parte 2): la portada de hoy, a todo el ancho. Las medidas y los colores son los de Estilos.html de la app de hoy. */
+:root { --tarjeta: #fff; --borde: #d9dee5; --azul2: #27507a; --acento: #2266aa; --ok: #2e7d4f; --aviso: #b26a00; --rojo: #b3261e; }
+.oculto { display: none !important; }
+.hoy-rejilla { display: grid; grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.5fr) minmax(0, 1fr); gap: 10px; align-items: start; }
+.hoy-rejilla .caja, .columna-hoy .caja { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 8px; padding: 10px 12px; }
+.columna-hoy { display: grid; gap: 10px; align-content: start; grid-column: 3; grid-row: span 2; }
+.hoy-rejilla #hoyCambios { grid-column: 1 / 3; }
+.por-mirar .linea-por-mirar { border-top: 1px solid var(--borde); padding: 5px 0; font-size: 12.5px; }
+.por-mirar .linea-por-mirar:first-of-type { border-top: 0; }
+.por-mirar .botones-por-mirar { display: flex; gap: 6px; margin-top: 3px; }
+a.pequeno { font-size: 11.5px; padding: 1px 8px; border: 1px solid var(--acento); border-radius: 6px; color: var(--acento); text-decoration: none; background: #fff; }
+.hoy-rejilla h2 { margin: 0 0 2px; font-size: 16px; }
+.hoy-rejilla .sub { color: var(--suave); font-size: 12.5px; margin-bottom: 8px; }
+.etq { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--aviso); font-weight: 700; }
+.etq.rojo { color: var(--rojo); } .etq.gris { color: var(--suave); }
+table.tabla-hoy { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.tabla-hoy th { font-size: 11.5px; text-align: right; color: var(--suave); font-weight: 400; padding: 3px 6px; border-bottom: 1px solid var(--borde); }
+table.tabla-hoy td { text-align: right; padding: 4px 6px; border-bottom: 1px solid #edf0f4; font-variant-numeric: tabular-nums; }
+table.tabla-hoy th:first-child, table.tabla-hoy td:first-child, table.tabla-hoy th:last-child, table.tabla-hoy td:last-child { text-align: left; }
+table.tabla-hoy tr.total td { font-weight: 700; border-bottom: 0; }
+.est { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 700; }
+.est i { font-style: normal; }
+.est.v { background: #e4f4e9; color: var(--ok); } .est.a { background: #fdf1d8; color: var(--aviso); } .est.r { background: #fbe6e4; color: var(--rojo); }
+.pasos-hoy { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px; margin-top: 10px; }
+.pasos-hoy .paso { display: block; border: 1px solid var(--borde); border-radius: 6px; padding: 6px 9px; background: #f8fafc; text-align: left; color: var(--tinta); font-size: 13px; text-decoration: none; }
+.pasos-hoy .paso small { display: block; color: var(--suave); font-size: 11px; }
+.pasos-hoy .paso b { display: block; font-size: 13px; }
+.pasos-hoy .paso em { font-style: normal; font-size: 12px; color: var(--suave); }
+.pasos-hoy .paso.fuerte { background: var(--azul2); border-color: var(--azul2); color: #fff; }
+.pasos-hoy .paso.fuerte small { color: #dbe6f3; }
+.pasos-hoy .paso-info { background: #fff; }
+.estado-paso { font-size: 11.5px; font-weight: 700; padding: 1px 7px; border-radius: 9px; white-space: nowrap; }
+.estado-paso i { font-style: normal; }
+.estado-paso.e-hecho { background: #e4f4e9; color: var(--ok); } .estado-paso.e-toca { background: #dbe8f7; color: var(--azul2); }
+.estado-paso.e-pendiente { background: #eef1f5; color: var(--suave); } .estado-paso.e-nohace { background: #f3f4f6; color: #7b8794; }
+.pasos-hoy .paso.e-hecho { background: #f1faf4; border-color: #b9dfc5; } .pasos-hoy .paso.fuerte .estado-paso { background: #fff; }
+a.ojo { display: block; color: inherit; text-decoration: none; border-left: 4px solid var(--rojo); padding: 5px 8px; background: #fbe6e4; border-radius: 0 5px 5px 0; margin: 6px 0; font-size: 13px; }
+a.ojo.am { border-color: var(--aviso); background: #fdf1d8; }
+.ojo i { font-style: normal; font-weight: 700; }
+.lista-hoy { list-style: none; margin: 4px 0 0; padding: 0; font-size: 13px; }
+.lista-hoy li { display: flex; justify-content: space-between; gap: 8px; padding: 5px 0; border-bottom: 1px solid #edf0f4; }
+.lista-hoy li span { color: var(--suave); white-space: nowrap; }
+.vacio-hoy, .nota-hoy { color: var(--suave); font-size: 13px; margin: 8px 0 0; }
+a.linea-tarea { display: block; color: inherit; text-decoration: none; padding: 6px 0; border-top: 1px solid #edf0f4; font-size: 13px; }
+.linea-tarea span { color: var(--suave); }
+.pie-hoy { margin-top: 8px; font-size: 12px; color: var(--suave); }
+.linea-cambio-hoy { font-size: 12.5px; padding: 3px 0; line-height: 1.3; }
+.linea-cambio-hoy span { color: var(--suave); }
+.ver-todos-cambios { font-size: 12.5px; color: var(--acento); }
+@media (max-width: 1000px) {
+  .hoy-rejilla { grid-template-columns: 1fr; }
+  .columna-hoy, .hoy-rejilla #hoyCambios { grid-column: auto; grid-row: auto; }
+}

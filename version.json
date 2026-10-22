@@ -1,13 +1,13 @@
 {
   "version": "web nueva v3",
-  "commit": "1c5ced5",
+  "commit": "67027cb",
   "ficheros": {
     "ABRIR LA WEB NUEVA DE BD.html": "e77c63a8a2ab49fa48961774ff9c82852ee579f3fc79af1b390db508dc7d1b2a",
     "actualizar-copia.js": "0cae8003a96fe552975c9ea0f51b3694c4ac13f943b53f72d20181f66da898c4",
     "arranque.js": "427b176cb977d1af257d6b3becc35763ba52dc65a79a93a3949a9419172d43f8",
     "buscar.js": "1461c205ec579ce0126de09ca2d23ab6b61601ebc59d732cb2337145039b9c9c",
     "carpeta.js": "a78b12916e95fb587d60d65c0c75341d5568b457e329b5edbb585923f6549cdf",
-    "commit.js": "3b31dfd88d0f332cd68044127e288a7f11685bdde1ddcc3212e2eae50fdabd8a",
+    "commit.js": "e1ba0228cc3474eba79014cbca5aedb08a5a32ebac45ba6bdd0998b2d5ae107e",
     "entrar.js": "27e207e297a84fb50564a2078b7a1b05d6c9936821b4e06098ee833df64c6568",
     "estadisticas-calculo.js": "cf8258537ee0cd89efa416866e8e4f414a1910cad365c045ed3beff3af4340b4",
     "estadisticas-datos.js": "a9952f87b041219fbe034c09c15b2e701a8245699bee41d603d795de52d5272f",

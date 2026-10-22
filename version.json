@@ -1,0 +1,16 @@
+{
+  "version": "web nueva v1",
+  "commit": "ad5c034",
+  "ficheros": {
+    "ABRIR LA WEB NUEVA DE BD.html": "e77c63a8a2ab49fa48961774ff9c82852ee579f3fc79af1b390db508dc7d1b2a",
+    "actualizar-copia.js": "0cae8003a96fe552975c9ea0f51b3694c4ac13f943b53f72d20181f66da898c4",
+    "arranque.js": "90aec3ff0cfaa0d38818c47cb83d87bb25ba1511fbce0bd57de23536d5552afc",
+    "buscar.js": "1461c205ec579ce0126de09ca2d23ab6b61601ebc59d732cb2337145039b9c9c",
+    "carpeta.js": "a78b12916e95fb587d60d65c0c75341d5568b457e329b5edbb585923f6549cdf",
+    "commit.js": "00c5438daac861336e7020e86805d9df3995ea91049119e8cb7955b9bd849759",
+    "estilos.css": "960d8729f6144420d2509ce26f76d439a587839da00e051d916c53e750664d95",
+    "index.html": "efe2b1bc2ecbe53f4ad17ac864182f7f01e9467e1a0784ff9a084b2c9b9d786d",
+    "medidas.js": "4a774a761257b88ca94c1a8e542b859802600dbb97b5e0471f549de0f431d41f",
+    "version.js": "ce3520a054240bba9a26ca2d66f73aa91dca83d59640b7ae195b440104502577"
+  }
+}

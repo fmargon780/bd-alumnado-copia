@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buscador de alumnado</title>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<header>
+  <h1>Buscador de alumnado</h1>
+  <div class="datos" id="datos">&nbsp;</div>
+</header>
+<main>
+  <section id="pruebas" class="aviso">
+    <p><strong>Esta página está en pruebas.</strong></p>
+    <p class="suave" id="ayuda">Todavía no está abierta para todo el mundo.</p>
+    <p id="pedir" hidden><button type="button" class="boton" id="elegir">Elegir la carpeta</button></p>
+    <p class="suave" id="problema" hidden></p>
+  </section>
+  <section id="buscador" hidden>
+    <input type="search" id="texto" placeholder="Escribe parte del nombre o el número de identificación" autocomplete="off" autofocus>
+    <div id="resultados"></div>
+  </section>
+</main>
+<p class="pie" id="version"></p>
+<script src="version.js"></script>
+<script src="commit.js"></script>
+<script src="buscar.js"></script>
+<script src="carpeta.js"></script>
+<script src="medidas.js"></script>
+<script src="arranque.js"></script>
+<script src="actualizar-copia.js"></script>
+</body>
+</html>

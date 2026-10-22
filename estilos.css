@@ -1,0 +1,22 @@
+:root { --tinta: #1b2430; --suave: #5d6b7a; --linea: #dde3ea; --azul: #1f4e79; --ambar: #fff4d6; --ambar-linea: #e0b34a; --marca: #eaf2fb; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 15px "Segoe UI", system-ui, Arial, sans-serif; color: var(--tinta); background: #f6f8fa; }
+header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 10px 16px; background: var(--azul); color: #fff; }
+h1 { margin: 0; font-size: 18px; }
+.datos { font-size: 13px; opacity: .9; }
+main { width: 100%; padding: 12px 16px; }
+.aviso, .aviso-ambar { background: var(--ambar); border: 1px solid var(--ambar-linea); border-radius: 10px; padding: 12px 16px; }
+.aviso p { margin: 4px 0; }
+.aviso-ambar { margin: 8px 16px; }
+.suave { color: var(--suave); font-size: 13px; }
+.boton, .accion { font: inherit; border: 1px solid var(--azul); background: var(--azul); color: #fff; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+#texto { width: 100%; font: inherit; font-size: 18px; padding: 12px 14px; border: 1px solid var(--linea); border-radius: 10px; background: #fff; }
+#resultados { margin-top: 8px; background: #fff; border: 1px solid var(--linea); border-radius: 10px; }
+#resultados:empty { display: none; }
+#resultados a { display: block; padding: 8px 14px; color: inherit; text-decoration: none; border-bottom: 1px solid var(--linea); }
+#resultados a:last-child { border-bottom: 0; }
+#resultados a:hover, #resultados a.marcado { background: var(--marca); }
+#resultados .u { font-size: 12px; color: var(--suave); }
+#resultados .vacio { padding: 10px 14px; color: var(--suave); }
+.pie { padding: 0 16px; color: var(--suave); font-size: 12px; }
+[hidden] { display: none !important; }

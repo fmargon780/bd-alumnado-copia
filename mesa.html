@@ -22,10 +22,11 @@
     <p id="pedir" hidden><button type="button" class="boton" id="elegir">Elegir la carpeta</button></p>
     <p class="suave" id="problema" hidden></p>
   </section>
+  <p id="escritura" class="estado-escritura" role="status" aria-live="polite" hidden></p>
   <section id="mesa" hidden>
     <div class="mesa-cabecera-web">
       <select id="selCurso" hidden aria-label="Curso"></select>
-      <span class="suave">Solo para mirar. Para cambiar algo: <a class="cambiar-app" id="enlaceApp" target="_blank" rel="noopener">Cambiar en la app de hoy</a></span>
+      <span class="suave"><span id="paraCambiar">Solo para mirar. Para cambiar algo:</span> <a class="cambiar-app" id="enlaceApp" target="_blank" rel="noopener">Cambiar en la app de hoy</a></span>
     </div>
     <div id="mensajes"></div>
     <div id="cargando" class="aviso oculto">Cargando…</div>
@@ -36,8 +37,10 @@
 <script src="version.js"></script>
 <script src="commit.js"></script>
 <script src="carpeta.js"></script>
+<script src="escritura.js"></script>
 <script src="medidas.js"></script>
 <script src="entrar.js"></script>
+<script src="lib/Sortable.min.js"></script>
 <script src="mesa-puente.js"></script>
 <script src="mesa-nucleo.js"></script>
 <script src="mesa-tabla.js"></script>

@@ -1,12 +1,22 @@
 /* El puente de la mesa de la web nueva (instrucción 138, parte 6). La pantalla es la de la app de hoy, cargada tal cual (mesa-*.js, generados por construir-mesa.mjs); esta pieza pone las pocas cosas de la app de hoy que esa
    pantalla da por hechas, sin llamar a Apps Script: dónde está el curso, cómo se piden la lista de niveles y la mesa de un nivel (aquí, un fichero de la carpeta privada que dejó el disparador), qué hacen los botones que están
-   dentro del HTML (esta página no admite código dentro del HTML: se atienden desde aquí) y qué pasa con los que escriben. Solo mira: lo que cambia datos (arrastrar, modelos, reglas, reparto, bloques, preferencias) se cambia en la
+   dentro del HTML (esta página no admite código dentro del HTML: se atienden desde aquí) y qué pasa con los que escriben.
+   Instrucción 139, parte 4: si la aplicación ha preparado las subcarpetas de peticiones (`activarEscritura`), la mesa también escribe: arrastrar alumnos (con la biblioteca Sortable 1.15.2 de la app de hoy, ahora dentro de web/lib/),
+   seleccionar y juntar o separar, reglas, criterios, proponer reparto, bloques, grupos, modelos (crear, renombrar, borrar, marcar definitivo), preferencias y los «Entendido». La mesa de hoy ya guarda por OPERACIONES, sin esperar y con
+   reintentos (mesaGuardarOperaciones): eso encaja tal cual con las peticiones; `llamar` deja la petición, espera la respuesta, vuelve a leer los ficheros de los niveles ya abiertos (que la aplicación rehace ANTES de contestar) y contesta
+   con lo que contestó la función de hoy. Antes de eso, solo miraba: lo que cambia datos (arrastrar, modelos, reglas, reparto, bloques, preferencias) se cambia en la
    app de hoy (fila 139). Se carga ANTES que la pantalla. */
 (function () {
   'use strict';
   var C = window.CarpetaWeb;
   var INDICE = '_mesa-indice.json';
-  var IND = null, CURSOS = {}, FICHEROS = {}, CARGADOS = {};
+  var IND = null, CURSOS = {}, FICHEROS = {}, CARGADOS = {}, CONTROL = null;
+  /* Lo que se puede escribir desde aquí (función de hoy -> cuántos argumentos lleva; el servidor lo vuelve a comprobar) y las funciones de la pantalla que lo piden. */
+  var ESCRIBE = { mesaBorrarModelo: 2, mesaCrearModelo: 5, mesaGuardarBloques: 4, mesaGuardarGrupos: 3, mesaGuardarMarca: 3, mesaGuardarOperaciones: 5, mesaGuardarPreferencia: 4, mesaMarcarDefinitivo: 3, mesaRenombrarModelo: 3 };
+  var UI_ESCRIBE = {};
+  ['quitarRegla', 'moverCriterio_', 'mesaEntendidoBajas_', 'cambiarMateria', 'cambiarBloque', 'vaciarSeleccion', 'separarSeleccionados', 'renombrarModelo', 'quitarGrupoMesa', 'quitarCriterio_', 'quitarBloque', 'proponerReparto',
+    'mesaEntendidoNuevos_', 'mesaEntendidoGrupo_', 'mesaEntendidoFuera_', 'marcarDefinitivo', 'juntarSeleccionados', 'guardarPreferenciaDesdeFicha', 'guardarBloques', 'crearModelo', 'cambiarCriterioDesborde', 'borrarModelo',
+    'aplicarCambiosOptativa', 'anadirGrupoMesa', 'anadirBloque', 'alternarModoSeleccion', 'alternarCriterio_'].forEach(function (n) { UI_ESCRIBE[n] = true; });
 
   window.CURSO_VISTO = '';
   window.PESTANA_ACTUAL = 'mesa';
@@ -32,6 +42,7 @@
     set: function (h) { INNER.set.call(this, typeof h === 'string' ? h.replace(/(\s)style=(["'])/g, '$1data-estilo=$2') : h); }
   });
   /* La biblioteca de arrastrar no está (la página no carga nada de fuera) y aquí no se arrastra. */
+  var SORTABLE_REAL = window.Sortable;   // la biblioteca de web/lib/, si la página la ha cargado: solo se usa con la escritura activada
   window.Sortable = function () { this.destroy = function () {}; };
 
   window.avisar = function (texto, clase) {
@@ -81,6 +92,18 @@
 
   /* Lo que la pantalla pide con `llamar`: leer es leer los ficheros; cualquier otra cosa escribe y se hace en la app de hoy. */
   window.llamar = function (fn, ce, nivel, id) {
+    if (Object.prototype.hasOwnProperty.call(ESCRIBE, fn)) {
+      if (!CONTROL) { soloEnLaApp(); return Promise.reject(new Error('Esto se cambia en la app de hoy.')); }
+      var n = ESCRIBE[fn], enviados = [].slice.call(arguments, 1, 1 + n);
+      while (enviados.length < n) enviados.push(null);
+      var curso = window.CURSO_VISTO;
+      return CONTROL.pedir(fn, enviados).then(function (e) {
+        if (e.estado !== 'hecha') throw new Error(e.error || 'No se ha podido guardar.');
+        var resultado = clon(e.resultado);
+        /* Los ficheros ya están rehechos: se vuelven a leer los niveles abiertos (modelos creados, borrados o renombrados se ven al volver a pedirlos). */
+        return puente.recargar(curso).then(function () { return resultado; }, function () { return resultado; });
+      });
+    }
     ce = String(ce || '');
     if (fn === 'mesaListarCursos') {
       var c = CURSOS[ce];
@@ -110,6 +133,7 @@
   /* ---- Los botones que están dentro del HTML de la pantalla de hoy (`onclick="…"`) ---- */
   /* Solo estos mueven la pantalla sin cambiar datos; cualquier otro escribe y no se ejecuta. */
   var LEER = {};
+  function vivo(n) { return !!(LEER[n] || (CONTROL && UI_ESCRIBE[n])); }   // con escritura activada, también las que guardan por `llamar`
   ['abrirNivel', 'cambiarPestana', 'alternarFiltroPreferencias', 'alternarFilasMaterias_', 'clicTarjeta', 'abrirFichaMesa', 'cerrarFichaMesa_', 'alternarPanelLateral', 'compararModelos', 'mesaVerSinGrupo_',
     'abrirFicha'].forEach(function (n) { LEER[n] = true; });
 
@@ -151,7 +175,7 @@
       if (frase === 'return false') { ev.preventDefault(); return; }
       if (frase === 'event.stopPropagation()') { parar = true; return; }
       var m = /^([A-Za-z_$][\w$]*)\((.*)\)$/.exec(frase);
-      if (!m || !LEER[m[1]] || typeof window[m[1]] !== 'function') { soloEnLaApp(); return; }
+      if (!m || !vivo(m[1]) || typeof window[m[1]] !== 'function') { soloEnLaApp(); return; }
       var args;
       try { args = m[2].trim() === '' ? [] : partir(m[2], ',').map(function (t) { return valor(t, el, ev); }); } catch (e) { soloEnLaApp(); return; }
       window[m[1]].apply(null, args);
@@ -178,7 +202,7 @@
     return partir(t, ';').every(function (frase) {
       frase = frase.trim();
       var m = /^([A-Za-z_$][\w$]*)\(/.exec(frase);
-      return !frase || frase === 'return false' || frase === 'event.stopPropagation()' || !!(m && LEER[m[1]]);
+      return !frase || frase === 'return false' || frase === 'event.stopPropagation()' || !!(m && vivo(m[1]));
     });
   }
 
@@ -201,6 +225,7 @@
       if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') el.disabled = true;
     });
     Array.prototype.forEach.call(raiz.querySelectorAll('[data-estilo]'), function (el) { el.style.cssText = el.getAttribute('data-estilo'); el.removeAttribute('data-estilo'); });
+    if (CONTROL) return;   // con escritura, los campos y las tarjetas quedan como los pinta la pantalla de hoy
     Array.prototype.forEach.call(raiz.querySelectorAll('#vistaBloquesMesa input, #vistaBloquesMesa select, #vistaBloquesMesa textarea, #panelLateralMesa input[type=text]'), function (el) { el.disabled = true; });
     Array.prototype.forEach.call(raiz.querySelectorAll('.tarjeta-alumno[draggable]'), function (el) { el.setAttribute('draggable', 'false'); });
   }
@@ -225,6 +250,20 @@
       try { x = await C.leerJson(f.fichero); } catch (e) { throw noPreparado('la mesa de ' + nivel); }
       CARGADOS[k] = x;
       return x;
+    },
+    activarEscritura: function (control) { CONTROL = control; if (SORTABLE_REAL) window.Sortable = SORTABLE_REAL; },
+    escribe: function () { return !!CONTROL; },
+    /* Vuelve a leer el índice y los ficheros de los niveles ya abiertos del curso (la aplicación los rehace antes de contestar una escritura). */
+    recargar: async function (curso) {
+      var abiertos = Object.keys(CARGADOS).filter(function (k) { return k.indexOf(curso + '|') === 0; });
+      var ind = await C.leerJson(INDICE), previos = CARGADOS;
+      puente.poner(ind);
+      Object.keys(previos).forEach(function (k) { CARGADOS[k] = previos[k]; });
+      for (var i = 0; i < abiertos.length; i++) {
+        var f = FICHEROS[abiertos[i]];
+        if (!f) continue;
+        try { CARGADOS[abiertos[i]] = await C.leerJson(f.fichero); } catch (e) { /* se queda lo que había */ }
+      }
     },
     atender: atiende, preparar: preparar, ejecutar: ejecutar
   };

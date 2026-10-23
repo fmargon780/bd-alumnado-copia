@@ -1,9 +1,9 @@
 /* Arranque de «Quién viene» de la web nueva (instrucción 138, parte 5): lee de la carpeta privada el índice y, al elegir curso, el fichero de ese curso, y pone en marcha la pantalla de la app de hoy (cargada tal cual,
-   quienviene-*.js generados por construir-quienviene.mjs) con sus ocho pasos: resolución, admitidos, esperados, cómo va cada curso, a quién llamar, sobres, casos a mirar y la lista de espera. Solo lee: lo que cambia datos
-   se cambia en la app de hoy (quienviene-puente.js). */
+   quienviene-*.js generados por construir-quienviene.mjs) con sus ocho pasos: resolución, admitidos, esperados, cómo va cada curso, a quién llamar, sobres, casos a mirar y la lista de espera. Lee y, desde la instrucción 139,
+   también escribe por peticiones (quienviene-puente.js). */
 (function () {
   'use strict';
-  var C = window.CarpetaWeb, E = window.EntrarWeb, P = window.QuienVienePuente;
+  var C = window.CarpetaWeb, E = window.EntrarWeb, P = window.QuienVienePuente, X = window.EscrituraWeb;
   var $ = function (id) { return document.getElementById(id); };
   var T0 = performance.now(), MEDIDO = false;
   var GRUPOS = [
@@ -74,6 +74,13 @@
   async function cargar() {
     try { IND = await C.leerJson(P.INDICE); } catch (e) { throw new Error('«Quién viene» todavía no está preparado: la aplicación lo deja hecho en su vuelta de cada hora.'); }
     P.poner(IND);
+    /* Instrucción 139, parte 3: se escribe aquí solo si la aplicación ha preparado las subcarpetas de peticiones; si no, queda el enlace a la app de hoy. */
+    if (await X.preparar()) {
+      P.activarEscritura(X.controlador({ alCambiar: function () {}, alMedir: function (ms) { window.MedidasWeb.escribir(ms); },
+        alEstado: function (texto, error) { var l = $('escritura'); l.textContent = texto || ''; l.className = 'estado-escritura' + (error ? ' estado-error' : ''); l.hidden = !texto; } }));
+      window.ESTADO.miPapel = { rol: 'admin' };
+      $('paraCambiar').textContent = 'Para cambiar lo que no se puede aquí:';
+    }
     var cursos = (IND.abiertos || []).map(function (c) { return c.curso; }).filter(function (c) { return P.ficheros()[c]; });
     if (!cursos.length) throw new Error('«Quién viene» todavía no está preparado.');
     var prep = (IND.abiertos || []).filter(function (c) { return c.estado === 'En preparación' && P.ficheros()[c.curso]; })[0];

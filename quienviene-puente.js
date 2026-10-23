@@ -1,12 +1,22 @@
 /* El puente de «Quién viene» de la web nueva (instrucción 138, parte 5). La pantalla es la de la app de hoy, cargada tal cual (quienviene-*.js, generados por construir-quienviene.mjs); esta pieza pone las pocas cosas de la app
    de hoy que esa pantalla da por hechas, sin llamar a Apps Script: dónde está el curso, cómo se pide `webQuienViene` (aquí, un fichero de la carpeta privada que dejó el disparador), qué hacen los botones que están dentro del
-   HTML (esta página no admite código dentro del HTML: se atienden desde aquí) y qué pasa con los que escriben. Solo lee: lo que cambia datos (no viene, objetivos, sobres, llamadas, lista de espera...) se cambia en la app de hoy
-   (fila 139). Se carga ANTES que la pantalla. */
+   HTML (esta página no admite código dentro del HTML: se atienden desde aquí) y qué pasa con los que escriben.
+   Instrucción 139, parte 3: si la aplicación ha preparado las subcarpetas de peticiones (`activarEscritura`), lo que cambia datos (no viene, «Repetirá», objetivos, sobres, provisionales, resolución de admisión,
+   llamadas y lista de espera, otro curso, falta de optativas) se escribe aquí: `llamar` deja una petición (escritura.js), espera a que la aplicación la aplique, vuelve a leer el fichero del curso (que la aplicación rehace
+   con la lectura de verdad ANTES de contestar) y contesta con lo que contestó la función de hoy. La pantalla de hoy sigue como siempre: casi todo lo guarda «sin esperar», cambiando la pantalla al momento. Se carga ANTES que la pantalla. */
 (function () {
   'use strict';
   var C = window.CarpetaWeb;
   var INDICE = '_quienviene-indice.json';
-  var IND = null, FICHEROS = {};
+  var IND = null, FICHEROS = {}, CONTROL = null;
+  /* Lo que se puede escribir desde aquí (función de hoy -> cuántos argumentos lleva; el servidor lo vuelve a comprobar) y las funciones de la pantalla que lo piden. */
+  var ESCRIBE = { webContactoGuardar: 4, webEsperaGuardar: 3, webNotaBorrar: 1, webObjetivoGuardar: 4, webOtroCursoDeshacer: 2, webOtroCursoMismo: 4, webOtroCursoRevisado: 3, webPlanificacionDeshacerFalta: 3, webPlanificacionGuardarFalta: 4,
+    webPlanificacionQuitarRevisado: 2, webPlanificacionRevisado: 3, webProvisionalDeshacerEmparejar: 2, webProvisionalEmparejar: 3, webQuienVieneDeshacerNoViene: 2, webQuienVieneIncluirNoEsperado: 4, webQuienVieneMarcarNoViene: 4,
+    webRepiteMarcar: 2, webRepiteQuitar: 2, webResolucionAnadir: 2, webResolucionDeshacerEmparejar: 2, webResolucionEmparejar: 3, webResolucionQuitar: 2, webSobreDeshacerEmparejar: 2, webSobreEmparejar: 3, webSobreMarcarProblema: 3, webSobreQuitarProblema: 2 };
+  var UI_ESCRIBE = {};
+  ['alternarProblemaSobre_', 'borrarContactoLlamar_', 'borrarLlamadaEspera_', 'corregirProblemaSobre_', 'deshacerEmparejarProvisional_', 'deshacerEmparejarResolucion_', 'deshacerEmparejarSobre_', 'deshacerNingunoProvisional_', 'deshacerNingunoResolucion_',
+    'deshacerNingunoSobre_', 'deshacerNoVieneLlamar_', 'deshacerNoVieneQuienViene_', 'deshacerOtroCurso_', 'deshacerRepitera_', 'editarObjetivo_', 'elegirEsperadoProvisional_', 'elegirEsperadoSobre_', 'elegirSolicitudResolucion_', 'esElMismoOtroCurso_',
+    'guardarContactoLlamar_', 'guardarEspera_', 'guardarFaltaSobre_', 'incluirNoEsperadoQuienViene_', 'marcarNoVieneQuienViene_', 'marcarRepitera_', 'quitarDeResolucion_', 'revisadoOtroCurso_', 'revisarSobreDos_', 'entendidoPrevision_'].forEach(function (n) { UI_ESCRIBE[n] = true; });
 
   window.CURSO_VISTO = '';
   window.PESTANA_ACTUAL = 'quienviene';
@@ -69,6 +79,18 @@
   /* Lo que la pantalla pide con `llamar`: leer `webQuienViene` es leer el fichero; cualquier otra cosa escribe y se hace en la app de hoy. */
   window.llamar = function (fn) {
     var cu = String(arguments[1] || '');
+    if (Object.prototype.hasOwnProperty.call(ESCRIBE, fn)) {
+      if (!CONTROL) { soloEnLaApp(); return Promise.reject(new Error('Esto se cambia en la app de hoy.')); }
+      var n = ESCRIBE[fn], enviados = [].slice.call(arguments, 1, 1 + n);
+      while (enviados.length < n) enviados.push(null);
+      var verlo = window.CURSO_VISTO;
+      return CONTROL.pedir(fn, enviados).then(function (e) {
+        if (e.estado !== 'hecha') throw new Error(e.error || 'No se ha podido guardar.');
+        var resultado = JSON.parse(JSON.stringify(e.resultado === undefined ? null : e.resultado));
+        /* Los ficheros ya están rehechos; se vuelven a leer sin repintar (la pantalla de hoy ya cambió al momento por su cuenta). */
+        return (verlo ? puente.recargarCurso(verlo) : Promise.resolve()).then(function () { return resultado; }, function () { return resultado; });
+      });
+    }
     if (fn === 'webQuienViene') {
       var d = window.MEMORIA_['webQuienViene' + JSON.stringify([cu])];
       return d ? Promise.resolve(d) : Promise.reject(noPreparado('el curso ' + cu));
@@ -80,6 +102,7 @@
   /* ---- Los botones que están dentro del HTML de la pantalla de hoy (`onclick="…"`) ---- */
   /* Solo estos mueven la pantalla sin cambiar datos; cualquier otro escribe y no se ejecuta. */
   var LEER = {};
+  function vivo(n) { return !!(LEER[n] || (CONTROL && UI_ESCRIBE[n])); }   // con escritura activada, también las que guardan por `llamar`
   ['filtrarPanelAvanceQuienViene_', 'cambiarFiltroQuienVieneCurso_', 'cambiarFiltroSobreQuienViene_', 'cambiarFiltroPrevision_', 'cambiarFiltroEstadoQuienViene_', 'cambiarFiltroResolucion_',
     'abrirListaCursoQV_', 'cerrarListaCursoQV_', 'alternarListaSobres_', 'alternarListaProvisionales_', 'alternarListaPrevisiones_', 'alternarListaOtroCurso_', 'abrirListaOtroCurso_',
     'alternarListaResolucion_', 'filtrarPorSobreQuienViene_', 'filtrarPorProvisional_', 'filtrarPorPrevision_', 'filtrarNoEsperadosPanel_', 'abrirFichaOtroCurso_', 'elegirEsperaPorPosicion_',
@@ -121,7 +144,9 @@
       if (frase === 'return false') { ev.preventDefault(); return; }
       if (frase === 'event.stopPropagation()') { parar = true; return; }
       var m = /^([A-Za-z_$][\w$]*)\((.*)\)$/.exec(frase);
-      if (!m || !LEER[m[1]] || typeof window[m[1]] !== 'function') { soloEnLaApp(); return; }
+      var asigna = /^([A-Za-z_$][\w$]*)\s*=\s*(true|false)$/.exec(frase);
+      if (asigna && CONTROL && /_$/.test(asigna[1])) { window[asigna[1]] = asigna[2] === 'true'; return; }   // «ESPERA_SUCIO_=true» de los campos de la lista de espera
+      if (!m || !vivo(m[1]) || typeof window[m[1]] !== 'function') { soloEnLaApp(); return; }
       var args;
       try { args = m[2].trim() === '' ? [] : partir(m[2], ',').map(function (t) { return valor(t, el, ev); }); } catch (e) { soloEnLaApp(); return; }
       window[m[1]].apply(null, args);
@@ -153,13 +178,15 @@
         el.removeAttribute('on' + tipo);
         el.setAttribute('data-on' + tipo, t);
         var m = /^\s*([A-Za-z_$][\w$]*)\(/.exec(t);
-        if (!(m && LEER[m[1]]) && t.trim() !== 'event.stopPropagation()') escribe = true;
+        var asigna = CONTROL && /^\s*[A-Za-z_$][\w$]*_\s*=\s*(true|false)\s*$/.test(t);
+        if (!(m && vivo(m[1])) && !asigna && t.trim() !== 'event.stopPropagation()') escribe = true;
       });
       if (!escribe) return;
       el.setAttribute('data-escribe', '1');
       if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') el.disabled = true;
     });
-    Array.prototype.forEach.call(raiz.querySelectorAll('input:not([data-on' + 'change]):not([data-oninput]), textarea, select:not([data-onchange])'), function (el) { el.disabled = true; });
+    /* Con la escritura activada los campos de los formularios que se guardan se dejan como los pinta la pantalla de hoy (ella misma los apaga en un curso cerrado). */
+    if (!CONTROL) Array.prototype.forEach.call(raiz.querySelectorAll('input:not([data-on' + 'change]):not([data-oninput]), textarea, select:not([data-onchange])'), function (el) { el.disabled = true; });
   }
 
   var puente = window.QuienVienePuente = {
@@ -176,6 +203,14 @@
       window.MEMORIA_['webQuienViene' + JSON.stringify([curso])] = x.qv;
       if (x.calendario) window.MEMORIA_['webCalendarioLeer' + JSON.stringify([curso])] = x.calendario;
       return x;
+    },
+    activarEscritura: function (control) { CONTROL = control; },
+    escribe: function () { return !!CONTROL; },
+    /* Vuelve a leer el fichero de un curso (la aplicación lo rehace antes de contestar una escritura) y lo deja en la memoria, sin repintar. */
+    recargarCurso: async function (curso) {
+      IND = await C.leerJson(INDICE);
+      puente.poner(IND);
+      return puente.cargarCurso(curso);
     },
     atender: atiende, preparar: preparar, ejecutar: ejecutar,
     irAVista: null   // la pone quienviene.js: cambia de paso

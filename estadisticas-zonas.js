@@ -208,7 +208,7 @@ function estadBorrar_() {
     delete MEMORIA_[EST_MEMORIA_CONSULTAS_ + JSON.stringify([CURSO_VISTO])];
     estadCerrarPop_();
     estadAbrirConsulta_(EST_.consultas[0] ? EST_.consultas[0].id : '');
-    estadPintarConsultas_(); estadPintarZonas_(); estadPintarTabla_();
+    estadAsegurarYPintar_();   // instrucción 139: la consulta que se abre pasa por `estadLimpiarDefinicion` (le pone el gráfico); pintar a pelo fallaba con «Cannot read properties of undefined (reading 'calculo')» aunque se había borrado
     estadTostada_('Consulta borrada.');
   }).catch(function (e) { estadCerrarPop_(); estadTostada_('No se ha borrado. ' + mensajeDeError(e)); });
 }

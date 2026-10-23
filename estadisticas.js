@@ -1,9 +1,9 @@
 /* Arranque de «Estadísticas» de la web nueva (instrucción 138, parte 4): lee de la carpeta privada el índice y, al pedirlo la pantalla (la de la app de hoy, cargada tal cual), el fichero del curso. Pone en su sitio las tres
    cosas de la pantalla de hoy que esta página no puede hacer igual: las bibliotecas del PDF y del Excel (de la propia página, no de internet), el dibujo del gráfico para el PDF (con una dirección «data:») y los dos enlaces
-   «Reintentar» (esta página no admite código dentro del HTML). Solo lee: guardar o borrar una consulta se hace en la app de hoy. */
+   «Reintentar» (esta página no admite código dentro del HTML). Lee y, desde la instrucción 139, guardar y borrar consultas se escribe por peticiones. */
 (function () {
   'use strict';
-  var C = window.CarpetaWeb, E = window.EntrarWeb, P = window.EstadisticasPuente;
+  var C = window.CarpetaWeb, E = window.EntrarWeb, P = window.EstadisticasPuente, X = window.EscrituraWeb;
   var $ = function (id) { return document.getElementById(id); };
   var T0 = performance.now(), MEDIDO = false;
 
@@ -56,6 +56,12 @@
     var ind;
     try { ind = await C.leerJson(P.INDICE); } catch (e) { throw new Error('«Estadísticas» todavía no está preparado: la aplicación lo deja hecho en su vuelta de cada hora.'); }
     P.poner(ind);
+    /* Instrucción 139, parte 5: se guarda y se borra aquí solo si la aplicación ha preparado las subcarpetas de peticiones; si no, queda el enlace a la app de hoy. */
+    if (await X.preparar()) {
+      P.activarEscritura(X.controlador({ alCambiar: function () {}, alMedir: function (ms) { window.MedidasWeb.escribir(ms); },
+        alEstado: function (texto, error) { var l = $('escritura'); l.textContent = texto || ''; l.className = 'estado-escritura' + (error ? ' estado-error' : ''); l.hidden = !texto; } }));
+      $('paraCambiar').textContent = 'Las consultas se guardan y se borran aquí; para lo demás:';
+    }
     var cursos = (ind.abiertos || []).map(function (c) { return c.curso; }).filter(function (c) { return (ind.ficheros || {})['datos|' + c]; });
     if (!cursos.length) throw new Error('«Estadísticas» todavía no está preparado.');
     var elegido = cursos.indexOf(ind.enMarcha) !== -1 ? ind.enMarcha : cursos[0];

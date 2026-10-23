@@ -189,7 +189,9 @@
     })) : h('p', { class: 'vacio-hoy' }, 'No hay fechas escritas. Se escriben en «Datos y configuración» › «Fechas del curso».')];
     var pm = B.porMirarVisibles(m, hh);
     s.porMirar = { oculto: !pm.length, n: pm.length, nodos: pm.length ? [h('div', { class: 'etq gris' }, 'Por mirar (' + pm.length + ')'), pm.slice(0, POR_MIRAR_MAX).map(function (e) {
-      return h('div', { class: 'linea-por-mirar' }, [h('div', { class: 'frase' }, e.texto), h('div', { class: 'botones-por-mirar' }, [enlace('pequeno', '', 'Ir', m), enlace('pequeno', '', 'Contestar en la app de hoy', m)])]);
+      return h('div', { class: 'linea-por-mirar' }, [h('div', { class: 'frase' }, e.texto), h('div', { class: 'botones-por-mirar' }, [enlace('pequeno', '', 'Ir', m)].concat(m.escribe
+        ? [h('button', { class: 'pequeno', type: 'button', 'data-por-mirar': e.id, 'data-respuesta': 'bien' }, 'Está bien'), enlace('pequeno', 'Avisar de lo que no está bien se hace con el botón de Soporte de la app de hoy', 'No está bien (en la app de hoy)', m)]
+        : [enlace('pequeno', '', 'Contestar en la app de hoy', m)]))]);
     }), pm.length > POR_MIRAR_MAX ? h('p', { class: 'suave' }, 'Hay ' + (pm.length - POR_MIRAR_MAX) + ' más en la app de hoy.') : null] : [] };
     var cl = B.lineasUltimosCambios(m, ahora);
     s.cambios = { oculto: !cl.length, nodos: cl.length ? [h('div', { class: 'etq gris' }, 'Últimos cambios'), cl.map(function (l) {

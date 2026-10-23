@@ -32,6 +32,10 @@
 .sit-fam-pie { font-size: 11.5px; }
 .sit-fam-aviso { background: #fff3cd; border: 1px solid #e8c56a; border-radius: 4px; padding: 3px 6px; }
 .informe-linea { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 4px 0; font-size: 13px; }
+.informe-estado { margin-top: 4px; font-size: 12.5px; }
+.informe-error { color: #a12a2a; }
+.informe-boton { font: inherit; font-size: 12.5px; padding: 3px 10px; border: 1px solid var(--acento); border-radius: 6px; background: #fff; color: var(--acento); cursor: pointer; }
+.informe-boton:disabled { opacity: .6; cursor: default; }
 .aviso-revisado { color: #98a1a8; border-top: 1px dashed var(--borde); margin-top: 4px; padding-top: 2px; }
 .traz-arriba { font-size: 12.5px; line-height: 1.5; margin-bottom: 4px; }
 .traz-dato { display: inline-block; margin-right: 12px; white-space: nowrap; }

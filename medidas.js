@@ -3,8 +3,8 @@
    Si no hay permiso de escritura, no se guarda y no pasa nada. */
 (function () {
   'use strict';
-  var NOMBRE = '_medidas-web.json', NOMBRE_FICHA = '_medidas-ficha.json', NOMBRE_LISTADO = '_medidas-listado.json', NOMBRE_HOY = '_medidas-hoy.json', NOMBRE_REVISION = '_medidas-revision.json', NOMBRE_ESTADISTICAS = '_medidas-estadisticas.json', NOMBRE_QUIENVIENE = '_medidas-quienviene.json', NOMBRE_MESA = '_medidas-mesa.json', NOMBRE_DATOS = '_medidas-datos.json', NOMBRE_ESCRIBIR = '_medidas-escribir.json', MAX = 30;
-  var datos = { version: '', abrir: [], buscar: [] }, fichas = { version: '', ficha: [] }, listados = { version: '', listado: [] }, hoys = { version: '', hoy: [] }, revisiones = { version: '', revision: [] }, estadisticas = { version: '', estadisticas: [] }, quienvienes = { version: '', quienviene: [] }, mesas = { version: '', mesa: [] }, datosM = { version: '', datos: [] }, escritos = { version: '', escribir: [] };
+  var NOMBRE = '_medidas-web.json', NOMBRE_FICHA = '_medidas-ficha.json', NOMBRE_LISTADO = '_medidas-listado.json', NOMBRE_HOY = '_medidas-hoy.json', NOMBRE_REVISION = '_medidas-revision.json', NOMBRE_ESTADISTICAS = '_medidas-estadisticas.json', NOMBRE_QUIENVIENE = '_medidas-quienviene.json', NOMBRE_MESA = '_medidas-mesa.json', NOMBRE_DATOS = '_medidas-datos.json', NOMBRE_ESCRIBIR = '_medidas-escribir.json', NOMBRE_DOCUMENTOS = '_medidas-documentos.json', MAX = 30;
+  var datos = { version: '', abrir: [], buscar: [] }, fichas = { version: '', ficha: [] }, listados = { version: '', listado: [] }, hoys = { version: '', hoy: [] }, revisiones = { version: '', revision: [] }, estadisticas = { version: '', estadisticas: [] }, quienvienes = { version: '', quienviene: [] }, mesas = { version: '', mesa: [] }, datosM = { version: '', datos: [] }, escritos = { version: '', escribir: [] }, documentosM = { version: '', documentos: [] };
   var pendiente = {};
 
   function entero(x) { return Math.max(0, Math.min(600000, Math.round(Number(x) || 0))); }
@@ -29,8 +29,9 @@
     quienviene: function (ms) { apuntar(quienvienes.quienviene, ms, NOMBRE_QUIENVIENE, quienvienes); },
     mesa: function (ms) { apuntar(mesas.mesa, ms, NOMBRE_MESA, mesas); },
     datos: function (ms) { apuntar(datosM.datos, ms, NOMBRE_DATOS, datosM); },
+    documentos: function (ms) { apuntar(documentosM.documentos, ms, NOMBRE_DOCUMENTOS, documentosM); },
     /* Instrucción 139: desde que se pulsa hasta «Guardado» (la aplicación lo ha aplicado). */
     escribir: function (ms) { apuntar(escritos.escribir, ms, NOMBRE_ESCRIBIR, escritos); },
-    resumen: function () { return { abrirMs: mediana(datos.abrir), buscarMs: mediana(datos.buscar), fichaMs: mediana(fichas.ficha), listadoMs: mediana(listados.listado), hoyMs: mediana(hoys.hoy), revisionMs: mediana(revisiones.revision), estadisticasMs: mediana(estadisticas.estadisticas), quienvieneMs: mediana(quienvienes.quienviene), mesaMs: mediana(mesas.mesa), datosMs: mediana(datosM.datos), escribirMs: mediana(escritos.escribir), abiertas: datos.abrir.length, busquedas: datos.buscar.length, fichas: fichas.ficha.length, listados: listados.listado.length, hoys: hoys.hoy.length, revisiones: revisiones.revision.length, estadisticas: estadisticas.estadisticas.length, quienvienes: quienvienes.quienviene.length, mesas: mesas.mesa.length, datos: datosM.datos.length, escritos: escritos.escribir.length }; }
+    resumen: function () { return { abrirMs: mediana(datos.abrir), buscarMs: mediana(datos.buscar), fichaMs: mediana(fichas.ficha), listadoMs: mediana(listados.listado), hoyMs: mediana(hoys.hoy), revisionMs: mediana(revisiones.revision), estadisticasMs: mediana(estadisticas.estadisticas), quienvieneMs: mediana(quienvienes.quienviene), mesaMs: mediana(mesas.mesa), datosMs: mediana(datosM.datos), documentosMs: mediana(documentosM.documentos), escribirMs: mediana(escritos.escribir), abiertas: datos.abrir.length, busquedas: datos.buscar.length, fichas: fichas.ficha.length, listados: listados.listado.length, hoys: hoys.hoy.length, revisiones: revisiones.revision.length, estadisticas: estadisticas.estadisticas.length, quienvienes: quienvienes.quienviene.length, mesas: mesas.mesa.length, datos: datosM.datos.length, documentos: documentosM.documentos.length, escritos: escritos.escribir.length }; }
   };
 })();

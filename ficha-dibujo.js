@@ -118,6 +118,7 @@
 
   function informes(a, ctx) {
     if (ctx.estado !== 'En marcha') return null;
+    if (ctx.escribir && raiz.FichaEscribir && raiz.FichaEscribir.informes) return raiz.FichaEscribir.informes(a, ctx);   // instrucción 140: «Preparar» pide la hoja a la aplicación
     var lista = a.informes || [];
     return recuadro('Informes', lista.length ? lista.map(function (i) { return h('div', 'informe-linea', [h('span', '', i.nombre), ' ', B.enlaceApp(ctx, 'Preparar en la app de hoy')]); }) : [p('No hay informes para este alumno.', 'campo')]);
   }

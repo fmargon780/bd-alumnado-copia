@@ -1,0 +1,6 @@
+/* «Documentos» de la web nueva (instrucción 140, parte 1): lo que las pantallas de la app de hoy (documentos-estilos.css y datos-base.css, generados) toman de la página de hoy y esta no tiene. */
+#documentosWeb { --tarjeta: #fff; --borde: #d9dee5; --texto: #1c2430; --acento: #2266aa; --ok: #2e7d4f; --aviso: #b26a00; --rojo: #b3261e; --suave: #5b6675; font-size: 14px; }
+#documentosWeb .cabecera-tarea { position: static; }
+#documentosWeb .cabecera-tarea .cab-linea { align-items: center; }
+#documentosWeb input:disabled, #documentosWeb textarea:disabled, #documentosWeb select:disabled { opacity: .75; }
+#documentosWeb input:not(:disabled), #documentosWeb select:not(:disabled), #documentosWeb textarea:not(:disabled) { opacity: 1; }

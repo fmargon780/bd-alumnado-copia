@@ -227,6 +227,47 @@
     }));
   }
 
-  raiz.FichaEscribir = { superponer: superponer, hayPendientes: hayPendientes, claveNotasDe: claveNotasDe, observaciones: observaciones, trayectoriaCorregir: trayectoriaCorregir, neaeCorregir: neaeCorregir, marcas: marcas };
+  /* Informes (instrucción 140): la hoja de «enterado» y la de seguimiento de ESTE alumno. «Preparar» deja una petición a la aplicación (`webInformeAlumnoPdf`: el PDF viene en la respuesta, no se guarda en ninguna parte
+     de Drive más de una hora) y, en cuanto está hecho, se descarga; si el navegador lo impide, queda el enlace «Abrir la hoja». El estado se recuerda aunque la ficha se redibuje. */
+  var INFORME = { ocupado: '', texto: '', error: false, url: '', nombre: '' };
+  function bytesDe(base64) {
+    var bin = atob(base64), bytes = new Uint8Array(bin.length);
+    for (var k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
+    return bytes;
+  }
+  function prepararInforme(a, E, informe) {
+    INFORME = { ocupado: informe.clave, texto: '', error: false, url: '', nombre: '' };
+    E.redibujar();
+    E.pedir('webInformeAlumnoPdf', [informe.clave, E.curso, a.nombre, a.unidad]).then(function (e) {
+      var r = e.resultado;
+      if (e.estado !== 'hecha') INFORME = { ocupado: '', texto: 'No se ha podido preparar la hoja. ' + (e.error || ''), error: true, url: '', nombre: '' };
+      else if (!r || !r.ok) INFORME = { ocupado: '', texto: (r && r.motivo) || 'No se ha podido preparar la hoja.', error: true, url: '', nombre: '' };
+      else {
+        var url = URL.createObjectURL(new Blob([bytesDe(r.base64)], { type: 'application/pdf' }));
+        INFORME = { ocupado: '', texto: 'Hoja preparada: ' + r.nombre, error: false, url: url, nombre: r.nombre };
+        var enlace = document.createElement('a');
+        enlace.href = url; enlace.download = r.nombre;
+        document.body.appendChild(enlace); enlace.click(); document.body.removeChild(enlace);
+      }
+      E.redibujar();
+    });
+  }
+  function informes(a, ctx) {
+    var E = ctx.escribir, lista = a.informes || [];
+    var filas = lista.map(function (i) {
+      var b = boton(INFORME.ocupado === i.clave ? 'Preparando…' : 'Preparar', 'informe-boton', function () { prepararInforme(a, E, i); });
+      b.disabled = !!INFORME.ocupado;
+      return h('div', 'informe-linea', [h('span', '', i.nombre), ' ', b]);
+    });
+    var enlace = null;
+    if (INFORME.url) { enlace = h('a', '', 'Abrir la hoja'); enlace.href = INFORME.url; enlace.download = INFORME.nombre; enlace.target = '_blank'; enlace.rel = 'noopener'; }
+    var estado = h('div', 'informe-estado', [
+      INFORME.ocupado ? B.p('Preparando la hoja… la aplicación la hace en cuanto puede (suele tardar menos de dos minutos).', 'campo') : null,
+      !INFORME.ocupado && INFORME.texto ? B.p(INFORME.texto, INFORME.error ? 'informe-error' : 'campo') : null,
+      enlace ? B.p([enlace]) : null]);
+    return B.recuadro('Informes', (filas.length ? filas : [B.p('No hay informes para este alumno.', 'campo')]).concat([estado]));
+  }
+
+  raiz.FichaEscribir = { superponer: superponer, hayPendientes: hayPendientes, claveNotasDe: claveNotasDe, observaciones: observaciones, trayectoriaCorregir: trayectoriaCorregir, neaeCorregir: neaeCorregir, marcas: marcas, informes: informes };
   if (typeof module !== 'undefined' && module.exports) module.exports = raiz.FichaEscribir;
 })(typeof window !== 'undefined' ? window : globalThis);

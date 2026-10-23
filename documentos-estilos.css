@@ -1,0 +1,19 @@
+/* Generado de JsDocumentos.html por web/construir-documentos.mjs: no se toca a mano. */
+.cabecera-tarea button.destacado:disabled { background: #e6eaef; border-color: #cfd6de; color: #7b8794; cursor: default; }
+.doc-linea { margin-bottom: 9px; font-size: 14px; }
+.doc-linea small { display: block; margin-top: 2px; font-size: 12.5px; opacity: .85; }
+.doc-caja { border-radius: 6px; padding: 8px 12px; }
+.doc-caja.marcha { background: #eaf2fb; border: 1px solid #b9d2ee; }
+.doc-caja.parada { background: #fbe0e0; border: 1px solid #e39a9a; color: #7a1f1f; }
+.doc-barra { height: 6px; background: #e3e9f0; border-radius: 3px; margin-top: 6px; overflow: hidden; }
+.doc-barra i { display: block; height: 100%; background: var(--acento); }
+.doc-tabla td.doc { font-weight: 600; width: 23%; }
+.doc-tabla td.est { width: 15%; white-space: nowrap; }
+.doc-tabla td.cuando { width: 15%; color: var(--suave); white-space: nowrap; }
+.doc-tabla td.abrir { width: 9%; }
+.doc-e { display: inline-block; font-weight: 700; font-size: 12.5px; padding: 2px 9px; border-radius: 10px; }
+.doc-e.ok { background: #e4f4e9; color: var(--ok); }
+.doc-e.falta { background: #fdebd0; color: var(--aviso); }
+.doc-e.gen { background: #dbe8f7; color: #27507a; }
+.doc-e.esp { background: #eef1f5; color: var(--suave); }
+.doc-e.mal { background: #fbe0e0; color: var(--rojo); }

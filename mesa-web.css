@@ -1,0 +1,11 @@
+/* La mesa de la web nueva (instrucción 138, parte 6): lo que la pantalla de la app de hoy (mesa.css y mesa-base.css, generados) toma de Estilos.html y esta página no tiene. */
+#mesa { --tarjeta: #fff; --borde: #d9dee5; --texto: #1c2430; --azul: #1d3b5c; --azul2: #27507a; --acento: #2266aa; --ok: #2e7d4f; --aviso: #b26a00; --rojo: #b3261e; --suave: #5b6675; font-size: 14px; }
+.oculto { display: none !important; }
+.mesa-cabecera-web { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.mesa-cabecera-web select { font: inherit; padding: 5px 8px; border: 1px solid var(--linea); border-radius: 6px; background: #fff; }
+/* Lo que escribe se cambia en la app de hoy: los botones no están y los campos se ven apagados. */
+[data-escribe] { cursor: default; }
+button[data-escribe] { display: none; }
+#tab-mesa input:disabled, #tab-mesa textarea:disabled, #tab-mesa select:disabled, .modal-fondo input:disabled, .modal-fondo select:disabled { opacity: .75; }
+#tab-mesa .tarjeta-alumno { cursor: pointer; }
+a.cambiar-app { font-size: 12px; padding: 1px 8px; border: 1px solid #2266aa; border-radius: 6px; color: #2266aa; text-decoration: none; background: #fff; white-space: nowrap; }

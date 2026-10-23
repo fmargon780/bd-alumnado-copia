@@ -3,8 +3,8 @@
    Si no hay permiso de escritura, no se guarda y no pasa nada. */
 (function () {
   'use strict';
-  var NOMBRE = '_medidas-web.json', NOMBRE_FICHA = '_medidas-ficha.json', NOMBRE_LISTADO = '_medidas-listado.json', NOMBRE_HOY = '_medidas-hoy.json', NOMBRE_REVISION = '_medidas-revision.json', NOMBRE_ESTADISTICAS = '_medidas-estadisticas.json', NOMBRE_QUIENVIENE = '_medidas-quienviene.json', MAX = 30;
-  var datos = { version: '', abrir: [], buscar: [] }, fichas = { version: '', ficha: [] }, listados = { version: '', listado: [] }, hoys = { version: '', hoy: [] }, revisiones = { version: '', revision: [] }, estadisticas = { version: '', estadisticas: [] }, quienvienes = { version: '', quienviene: [] };
+  var NOMBRE = '_medidas-web.json', NOMBRE_FICHA = '_medidas-ficha.json', NOMBRE_LISTADO = '_medidas-listado.json', NOMBRE_HOY = '_medidas-hoy.json', NOMBRE_REVISION = '_medidas-revision.json', NOMBRE_ESTADISTICAS = '_medidas-estadisticas.json', NOMBRE_QUIENVIENE = '_medidas-quienviene.json', NOMBRE_MESA = '_medidas-mesa.json', MAX = 30;
+  var datos = { version: '', abrir: [], buscar: [] }, fichas = { version: '', ficha: [] }, listados = { version: '', listado: [] }, hoys = { version: '', hoy: [] }, revisiones = { version: '', revision: [] }, estadisticas = { version: '', estadisticas: [] }, quienvienes = { version: '', quienviene: [] }, mesas = { version: '', mesa: [] };
   var pendiente = {};
 
   function entero(x) { return Math.max(0, Math.min(600000, Math.round(Number(x) || 0))); }
@@ -27,6 +27,7 @@
     revision: function (ms) { apuntar(revisiones.revision, ms, NOMBRE_REVISION, revisiones); },
     estadisticas: function (ms) { apuntar(estadisticas.estadisticas, ms, NOMBRE_ESTADISTICAS, estadisticas); },
     quienviene: function (ms) { apuntar(quienvienes.quienviene, ms, NOMBRE_QUIENVIENE, quienvienes); },
-    resumen: function () { return { abrirMs: mediana(datos.abrir), buscarMs: mediana(datos.buscar), fichaMs: mediana(fichas.ficha), listadoMs: mediana(listados.listado), hoyMs: mediana(hoys.hoy), revisionMs: mediana(revisiones.revision), estadisticasMs: mediana(estadisticas.estadisticas), quienvieneMs: mediana(quienvienes.quienviene), abiertas: datos.abrir.length, busquedas: datos.buscar.length, fichas: fichas.ficha.length, listados: listados.listado.length, hoys: hoys.hoy.length, revisiones: revisiones.revision.length, estadisticas: estadisticas.estadisticas.length, quienvienes: quienvienes.quienviene.length }; }
+    mesa: function (ms) { apuntar(mesas.mesa, ms, NOMBRE_MESA, mesas); },
+    resumen: function () { return { abrirMs: mediana(datos.abrir), buscarMs: mediana(datos.buscar), fichaMs: mediana(fichas.ficha), listadoMs: mediana(listados.listado), hoyMs: mediana(hoys.hoy), revisionMs: mediana(revisiones.revision), estadisticasMs: mediana(estadisticas.estadisticas), quienvieneMs: mediana(quienvienes.quienviene), mesaMs: mediana(mesas.mesa), abiertas: datos.abrir.length, busquedas: datos.buscar.length, fichas: fichas.ficha.length, listados: listados.listado.length, hoys: hoys.hoy.length, revisiones: revisiones.revision.length, estadisticas: estadisticas.estadisticas.length, quienvienes: quienvienes.quienviene.length, mesas: mesas.mesa.length }; }
   };
 })();

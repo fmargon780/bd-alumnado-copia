@@ -1,0 +1,123 @@
+/* Generado de EstilosMesa.html por web/construir-mesa.mjs: no se toca a mano. */
+ de Mesa.html, servida
+  aparte). Lo que ya comparte con el resto de la web (.tarjeta, .oculto,
+  .aviso/.error, .cargando, .fila-botones, .chip, .modal-fondo/.ficha,
+  .subpestanas) vive en Estilos.html y no se repite aquí.
+-->
+<style>
+  table.equilibrio { border-collapse: collapse; width: 100%; margin-bottom: 12px; background: #fff; font-size: 12px; }
+  table.equilibrio th, table.equilibrio td { border: 1px solid var(--borde); padding: 3px 6px; text-align: center; }
+  table.equilibrio th { background: #eef2f6; }
+  table.equilibrio td.etiqueta, table.equilibrio th.etiqueta { text-align: left; font-weight: 600; white-space: nowrap; }
+  table.equilibrio td.rojo { background: #fbdada; color: #7a1f1f; font-weight: 700; }
+  /* Instrucción 48: la tabla lleva más filas (suspensas y una por materia): filas compactas para que las columnas de alumnos sigan a la vista. */
+  table.equilibrio { font-size: 11.5px; line-height: 1.2; }
+  table.equilibrio th, table.equilibrio td { padding: 1px 6px; }
+  table.equilibrio tr.eq-sep td { background: #eef2f6; text-align: left; font-weight: 600; color: #556; cursor: pointer; }
+  table.equilibrio td.no-da { color: #aab; }
+  table.equilibrio .eq-criterio { color: #1f5fa8; }
+
+  .columnas { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 20px; }
+  .columna { background: #fff; border: 1px solid var(--borde); border-radius: 6px; min-width: 190px; flex: 1 1 0; }
+  .columna h3 { margin: 0; padding: 6px 8px; font-size: 13px; background: #eef2f6; border-bottom: 1px solid var(--borde);
+    border-radius: 6px 6px 0 0; display: flex; justify-content: space-between; }
+  .columna-lista { min-height: 60px; padding: 6px; display: flex; flex-direction: column; gap: 5px; }
+  .columna-lista.arrastrando-encima { background: #eaf2fb; }
+
+  /* .tarjeta ya existe en Estilos.html (la tarjeta genérica de las demás
+     pestañas), pero con otro tamaño: aquí hace falta una pequeña y
+     arrastrable, así que la de un alumno en la mesa es .tarjeta-alumno,
+     nunca .tarjeta. */
+  .tarjeta-alumno {
+    background: #fbfbfb; border: 1px solid var(--borde); border-radius: 5px; padding: 5px 7px; cursor: grab; font-size: 12.5px;
+  }
+  .tarjeta-alumno:active { cursor: grabbing; }
+  .tarjeta-alumno .nombre { font-weight: 600; display: block; margin-bottom: 2px; }
+  .tarjeta-alumno.seleccionada { outline: 2px solid var(--acento); background: #eaf2fb; }
+  .tarjeta-alumno.resaltada { outline: 3px solid var(--aviso); }
+
+  /* Por lo mismo, las etiquetas de color de la tarjeta (REP, PIL...) son
+     .etiqueta-mesa, no .chip (que en el resto de la web es gris/oscuro:
+     con fondos de color como estos, el texto blanco solo hace falta aquí). */
+  .etiqueta-mesa {
+    display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 8px; margin: 1px 2px 0 0;
+    color: #fff; line-height: 1.4;
+  }
+  .etiqueta-mesa.rep { background: #b45309; } .etiqueta-mesa.pil { background: #7c2d12; } .etiqueta-mesa.neae { background: #6d28d9; }
+  .etiqueta-mesa.div { background: #0e7490; } .etiqueta-mesa.conf { background: #b91c1c; } .etiqueta-mesa.bil { background: #15803d; }
+  .etiqueta-mesa.opt { background: #52525b; } .etiqueta-mesa.susp { background: #a16207; } .etiqueta-mesa.cambio { background: #9d174d; }
+
+  /* La ficha breve del alumno en la mesa reutiliza el fondo .modal-fondo de
+     siempre, pero su tarjeta es más estrecha que la .ficha completa: de ahí
+     .ficha-mesa, con su propio nombre. */
+  .ficha-mesa { background: #fff; border-radius: 8px; padding: 16px 20px; width: 340px; max-width: 92vw; }
+  .ficha-mesa h3 { margin: 0 0 8px; }
+  .ficha-mesa p { margin: 3px 0; font-size: 13px; }
+  .ficha-mesa label { display: flex; align-items: center; gap: 6px; margin: 8px 0; font-size: 13px; }
+  .ficha-mesa .cerrar { margin-top: 10px; text-align: right; }
+
+  .franja { background: #fff; border: 1px solid var(--borde); border-radius: 6px; margin-bottom: 14px; padding: 10px 12px; }
+  .franja h3 { margin: 0 0 8px; font-size: 15px; }
+  .bloque { border: 1px solid #e2e6ea; border-radius: 5px; padding: 8px 10px; margin-bottom: 8px; }
+  .bloque .fila-bloque { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; }
+  .bloque .quitar { margin-left: auto; background: none; border: none; color: var(--rojo); font-weight: 700; }
+  .bloque-titulo { font-size: 12px; color: #555; margin-bottom: 4px; }
+  .checklist { display: flex; flex-wrap: wrap; gap: 8px; }
+  .checklist label { font-size: 12px; display: flex; align-items: center; gap: 3px; white-space: nowrap; }
+  .guardar-bloques { margin-top: 6px; }
+
+  /* Panel lateral de reglas/criterios/comparar: fijo, se abre encima de lo
+     que haya (solo se ve estando en la pestaña Mesa, dentro de #tab-mesa). */
+  body.panel-abierto main { margin-right: 300px; }
+  .panel-lateral {
+    position: fixed; top: 0; right: -300px; bottom: 0; width: 300px; background: #fff;
+    border-left: 1px solid var(--borde); box-shadow: -2px 0 8px rgba(0,0,0,.1); padding: 12px;
+    overflow-y: auto; z-index: 45; transition: right .15s;
+  }
+  body.panel-abierto .panel-lateral { right: 0; }
+  .panel-lateral h3 { margin: 4px 0 6px; font-size: 14px; }
+  .panel-lateral h4 { margin: 14px 0 4px; font-size: 12.5px; color: #555; text-transform: uppercase; }
+  .panel-lateral .regla {
+    font-size: 12px; padding: 4px 6px; border: 1px solid #e2e6ea; border-radius: 4px; margin-bottom: 4px;
+    display: flex; justify-content: space-between; align-items: center; gap: 6px;
+  }
+  .panel-lateral .regla.rota { background: #fbdada; border-color: #e39a9a; color: #7a1f1f; }
+  .panel-lateral .regla button { border: none; background: none; color: var(--rojo); font-weight: 700; cursor: pointer; }
+  /* Instrucción 48: la lista de criterios del reparto, en orden de prioridad. */
+  .panel-lateral .crit-ayuda { font-size: 11.5px; color: #667; margin: 2px 0 6px; }
+  .lista-criterios { list-style: none; margin: 0 0 6px; padding: 0; }
+  .lista-criterios li.crit { display: flex; align-items: center; gap: 4px; padding: 2px 0; border-bottom: 1px solid #eef0f3; }
+  .lista-criterios li.apagado .crit-texto { color: #98a1a8; }
+  .crit-n { width: 16px; text-align: right; color: #889; font-size: 11.5px; }
+  .crit-texto { flex: 1 1 0; display: flex; align-items: center; gap: 4px; font-size: 12.5px; line-height: 1.25; }
+  .crit-gris { color: #98a1a8; font-size: 11.5px; }
+  .crit-botones { display: flex; gap: 2px; }
+  .crit-botones button, .crit-hueco { width: 28px; height: 28px; box-sizing: border-box; }
+  .crit-botones button { padding: 0; border: 1px solid #d5dae0; background: #f7f9fb; border-radius: 4px; cursor: pointer; font-size: 12px; }
+  .crit-botones button.crit-quita { color: var(--rojo); font-weight: 700; }
+  .crit-anadir { width: 100%; font-size: 12.5px; padding: 4px; margin: 6px 0; }
+  .panel-lateral label.criterio { display: flex; align-items: center; gap: 6px; font-size: 12.5px; margin: 5px 0; }
+  .panel-lateral .fila-comparar { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+  .panel-lateral .fila-comparar select { flex: 1 1 0; font-size: 12px; padding: 3px; }
+  #avisoSeleccionMesa { font-size: 12px; background: #eaf2fb; border: 1px solid #b9d3ea; border-radius: 4px; padding: 5px 7px; margin-bottom: 8px; }
+  /* Instrucción 61: la fila de niveles, las etiquetas del curso que viene y el modo de solo lectura (curso cerrado). */
+  .niveles-mesa { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+  .niveles-mesa .nivel-mesa { border: 1px solid var(--borde); background: var(--tarjeta); border-radius: 6px; padding: 5px 12px; cursor: pointer; font-size: 13px; }
+  .niveles-mesa .nivel-mesa.activo { background: var(--azul); color: #fff; border-color: var(--azul); font-weight: 600; }
+  .etiqueta-mesa.sin-matricular { background: #fff3cd; color: #7a5b00; border: 1px solid #e8c56a; }
+  .etiqueta-mesa.sin-matricular i { font-style: normal; }
+  .caja-mesa { border: 1px solid #e8c56a; background: #fff8e1; border-radius: 6px; padding: 8px 10px; margin: 0 0 8px; font-size: 13px; }
+  .caja-mesa.llegada { border-color: #9cc3e6; background: #eef6fc; }
+  .caja-mesa .cabecera-caja { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .caja-mesa .linea-caja { display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 4px 0; border-top: 1px solid #f0e2b0; }
+  .etiqueta-mesa.nuevo { background: #dbeafe; color: #1e3a8a; border: 1px solid #93c5fd; }
+  .etiqueta-mesa.nuevo i { font-style: normal; }
+  .etiqueta-mesa.sin-su-grupo { background: #fff3cd; color: #7a5b00; border: 1px solid #e8c56a; }
+  .etiqueta-mesa.sin-su-grupo i { font-style: normal; }
+  .caja-mesa.cambio-reparto { border-color: #e8c56a; background: #fff8e1; }
+  .etiqueta-mesa.fuera-plazo { background: #fde2e2; color: #9b1c1c; border: 1px solid #e29a9a; }
+  .etiqueta-mesa.sin-elegir { background: #fff3cd; color: #7a5b00; border: 1px dashed #c8a23a; }
+  .etiqueta-mesa.fuera-plazo i, .etiqueta-mesa.sin-elegir i { font-style: normal; }
+  .mesa-solo-lectura .tarjeta-alumno { cursor: default; }
+  .tambien-modelo { margin-left: auto; font-size: 12.5px; color: var(--suave); }
+  #tab-mesa .quitar { margin-left: 4px; font-size: 11px; }

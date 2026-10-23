@@ -1,0 +1,26 @@
+/* Generado de Estilos.html por web/construir-mesa.mjs: no se toca a mano. */
+.oculto { display: none !important; }
+.aviso, .error { padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; font-size: 13px; }
+.aviso { background: #fff3cd; border: 1px solid #e8c56a; }
+.error { background: #fbe0e0; border: 1px solid #e39a9a; color: #7a1f1f; }
+.tarjeta { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+.tarjeta h2 { margin: 0 0 8px; font-size: 15px; }
+.tarjeta p { margin: 4px 0; color: #444; }
+.fila-botones { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.fila-botones button, .btn { font-size: 13px; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--acento); background: #fff; color: var(--acento); cursor: pointer; white-space: nowrap; }
+.fila-botones button.principal, .btn.prim { background: var(--acento); color: #fff; }
+.fila-botones button.peligro, .btn.peligro { border-color: var(--rojo); color: var(--rojo); }
+.modal-fondo { position: fixed; inset: 0; background: rgba(20,30,40,.45); z-index: 90; display: flex; align-items: flex-start; justify-content: center; overflow: auto; padding: 26px 12px; }
+.ficha { background: #fff; border-radius: 8px; width: 100%; padding: 12px 16px 16px; }
+.chip { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11.5px; margin: 1px 3px 1px 0; background: #e2e6ea; }
+.chip.si { background: #dcecdc; color: #1e5a1e; }
+.chip.rep { background: #f6e3c8; color: #7a4a00; font-weight: 600; }
+.enlace-discreto.oculto { display: none; }
+.nota { border-bottom: 1px solid var(--borde); padding: 6px 0; font-size: 13px; }
+.nota .meta { color: #889; font-size: 11.5px; }
+.nota textarea, .ficha textarea { width: 100%; font-family: inherit; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; padding: 6px; }
+.nota-acciones button, .fila-botones button.pequeno, button.pequeno { font-size: 11.5px; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--acento); background: #fff; color: var(--acento); cursor: pointer; }
+.subpestanas { display: flex; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
+.subpestanas span { cursor: pointer; font-size: 13.5px; padding: 3px 1px; border-bottom: 2px solid transparent; color: #444; }
+.subpestanas span.activa { font-weight: 600; border-bottom-color: var(--acento); color: var(--azul); }
+.chip.aviso-sobre { background: #f6e3c8; color: #7a4a00; }

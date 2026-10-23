@@ -1,0 +1,15 @@
+/* «Datos y configuración» de la web nueva (instrucción 138, parte 7): lo que las pantallas de la app de hoy (datos-base.css, generado) toman de la página de hoy y esta no tiene. */
+#datosYConfiguracion { font-size: 14px; }
+.oculto { display: none !important; }
+.datos-cabecera-web { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.datos-cabecera-web select { font: inherit; padding: 5px 8px; border: 1px solid var(--linea); border-radius: 6px; background: #fff; }
+.dt-pasos { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.dt-pasos button { font: inherit; padding: 6px 12px; border: 1px solid var(--linea); border-radius: 8px; background: #fff; cursor: pointer; color: var(--azul); }
+.dt-pasos button.actual { background: var(--marca); font-weight: 600; border-color: var(--azul); }
+.nota-ayuda { font-size: 12.5px; color: #667; margin: 0 0 8px; }
+.nota-cuadre { font-size: 12.5px; margin: 8px 0 0; }
+/* Lo que escribe se cambia en la app de hoy: los botones no están y los campos se ven apagados. */
+[data-escribe] { cursor: default; }
+button[data-escribe], a[data-escribe] { display: none; }
+#datosYConfiguracion input:disabled, #datosYConfiguracion textarea:disabled, #datosYConfiguracion select:disabled { opacity: .75; }
+a.cambiar-app { font-size: 12px; padding: 1px 8px; border: 1px solid #2266aa; border-radius: 6px; color: #2266aa; text-decoration: none; background: #fff; white-space: nowrap; }

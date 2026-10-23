@@ -2,7 +2,7 @@
    Se pinta en el elemento `#menu` de cada página; la página actual se marca con `data-pagina="<fichero>"` en `body`. */
 (function () {
   'use strict';
-  var PAGINAS = [['hoy.html', 'Hoy'], ['index.html', 'Buscador'], ['listado.html', 'Listados'], ['revision.html', 'Revisión'], ['estadisticas.html', 'Estadísticas'], ['quienviene.html', 'Quién viene'], ['mesa.html', 'Mesa']];
+  var PAGINAS = [['hoy.html', 'Hoy'], ['index.html', 'Buscador'], ['listado.html', 'Listados'], ['revision.html', 'Revisión'], ['estadisticas.html', 'Estadísticas'], ['quienviene.html', 'Quién viene'], ['mesa.html', 'Mesa'], ['datos.html', 'Datos']];
   var caja = document.getElementById('menu');
   if (!caja) return;
   var actual = document.body.getAttribute('data-pagina') || '';

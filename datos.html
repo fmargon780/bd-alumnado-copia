@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Datos y configuración</title>
+<link rel="stylesheet" href="estilos.css">
+<link rel="stylesheet" href="datos-web.css">
+<link rel="stylesheet" href="datos-base.css">
+</head>
+<body data-pagina="datos.html">
+<header>
+  <h1>Datos y configuración</h1>
+  <div class="datos" id="datos">&nbsp;</div>
+</header>
+<nav id="menu"></nav>
+<main>
+  <section id="pruebas" class="aviso">
+    <p><strong>Esta página está en pruebas.</strong></p>
+    <p class="suave" id="ayuda">Todavía no está abierta para todo el mundo.</p>
+    <p id="pedir" hidden><button type="button" class="boton" id="elegir">Elegir la carpeta</button></p>
+    <p class="suave" id="problema" hidden></p>
+  </section>
+  <section id="datosYConfiguracion" hidden>
+    <div class="datos-cabecera-web">
+      <select id="selCurso" hidden aria-label="Curso"></select>
+      <span class="suave">Solo para mirar. Para cambiar algo: <a class="cambiar-app" id="enlaceApp" target="_blank" rel="noopener">Cambiar en la app de hoy</a></span>
+    </div>
+    <div class="dt-pasos" id="pasos"></div>
+    <div id="mensajes"></div>
+
+    <div id="tab-datos">
+      <div class="tarjeta" id="tarjetaCentro">
+        <h2>El centro</h2>
+        <p class="nota-ayuda">Los datos de tu instituto. Los usan los informes, los PDF, los correos y la cabecera de la web.</p>
+        <div id="formularioCentro"></div>
+      </div>
+      <div class="tarjeta oculto" id="tarjetaEquipo">
+        <h2>Quién entra</h2>
+        <p class="nota-ayuda">Quién puede abrir la web además de quien la gestiona. Entran con su cuenta de correo, ven todo y cambian todo, salvo lo que solo cambia quien gestiona la base de datos.</p>
+        <div id="contenidoEquipo"></div>
+      </div>
+      <div class="tarjeta oculto" id="tarjetaCambios">
+        <h2>Cambios</h2>
+        <p class="nota-ayuda">Quién cambió qué y cuándo en la web, de los últimos 60 días, también lo tuyo. «Ir» lleva a su sitio.</p>
+        <div id="contenidoCambios"></div>
+      </div>
+      <div class="tarjeta" id="tarjetaFechas">
+        <h2>Fechas del curso</h2>
+        <p class="nota-ayuda">Cuándo empieza y acaba cada tarea de este curso. El menú y la portada «Hoy» las usan para saber qué toca. Se escriben una vez al año.</p>
+        <div id="calendarioCurso"></div>
+      </div>
+    </div>
+
+    <div id="tab-portada" class="oculto">
+      <div id="seccionEstadoApp">
+        <div class="tarjeta" id="tarjetaFijas">
+          <h2>Cómo está la app</h2>
+          <div id="lineasFijas"></div>
+        </div>
+        <div class="tarjeta">
+          <div class="resumen-portada">
+            <div class="dato-portada">
+              <div><div class="et">Última actualización</div><div class="val" id="resumenActualizacion">—</div><div class="linea-datos oculto" id="lineaDatosPortada"></div></div>
+            </div>
+          </div>
+          <div class="barra-fase oculto" id="barraFase"><div class="relleno"></div></div>
+          <div class="aviso-ficha oculto" id="avisoFichaPortada"></div>
+          <details class="resumen-ult-act oculto" id="resumenUltAct">
+            <summary id="resumenUltActTitulo"></summary>
+            <div id="resumenUltActCuerpo"></div>
+          </details>
+        </div>
+        <div class="tarjeta" id="tarjetaComprobaciones">
+          <h2>Comprobaciones con tus datos</h2>
+        <p class="nota-ayuda">La app repasa sola sus cuentas con tus datos reales cada vez que se actualizan. No tienes que hacer nada.</p>
+          <div id="contenidoComprobaciones"></div>
+        </div>
+      </div>
+      <div id="seccionCursos" class="oculto">
+        <div class="tarjeta">
+          <h2>Cursos</h2>
+        <p class="nota-ayuda">Qué cursos hay abiertos y en qué estado. Aquí se pasa un curso a «en marcha», se cierra o se abre el siguiente.</p>
+          <table class="listado" id="tablaCursosPortada"><thead><tr><th>Curso</th><th>Estado</th></tr></thead><tbody id="filasCursosPortada"></tbody></table>
+          <div class="fila-botones" id="botonesPortada"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-descargas" class="oculto">
+      <div data-grupo="fija" class="tarjeta">
+        <h2>Lo que usa la aplicación</h2>
+        <p class="oculto" id="centroDatosFrase"></p>
+        <div class="oculto" id="porPreguntarCD"></div>
+        <table class="listado descargas">
+          <thead><tr><th>Fichero</th><th>Para qué sirve</th><th>Dónde se descarga en Séneca</th><th>De cuándo es</th></tr></thead>
+          <tbody id="filasDescargas"></tbody>
+        </table>
+      </div>
+      <div data-grupo="admision" class="tarjeta">
+        <h2>Solicitudes de admisión</h2>
+        <p class="nota-ayuda">Un fichero por grado (ordinario) o cualquier número de ellos (extraordinario). El detalle de cada solicitud está en Admisión › Admitidos y no admitidos por curso.</p>
+        <table class="listado descargas">
+          <thead><tr><th>Fichero</th><th>Tipo</th><th>Grado</th><th>De cuándo es</th></tr></thead>
+          <tbody id="filasAdmision"></tbody>
+        </table>
+      </div>
+      <div data-grupo="resolucion" class="tarjeta">
+        <h2>Resolución de admisión (PDF)</h2>
+        <p class="nota-ayuda">El PDF de la resolución de mayo (admitidos y no admitidos de cada curso). Se suelta aquí tal como lo da Séneca: se lee en tu navegador, se comprueba que han salido todos y se guarda en el curso escolar que dice el propio PDF. Lo que sale se ve en Admisión › Resolución de admisión.</p>
+        <table class="listado descargas">
+          <thead><tr><th>Fichero</th><th>De cuándo es</th><th>Lectura</th></tr></thead>
+          <tbody id="filasResolucion"></tbody>
+        </table>
+        <p id="cuadreResolucionDescargas" class="nota-cuadre"></p>
+      </div>
+      <div data-grupo="sobres" class="tarjeta">
+        <h2>Sobres de matrícula (solicitudes telemáticas)</h2>
+        <p class="nota-ayuda">Se descargan de Séneca en julio. El nombre del fichero tiene que empezar por <code>SolicitudesTelematicas</code> (por ejemplo <code>SolicitudesTelematicas-1ESO.csv</code>); se pueden soltar varios a la vez. Son del curso en preparación. Lo que dicen se ve en Matrícula › Sobres.</p>
+        <table class="listado descargas">
+          <thead><tr><th>Fichero</th><th>De cuándo es</th></tr></thead>
+          <tbody id="filasSobres"></tbody>
+        </table>
+      </div>
+      <div data-grupo="provisionales" class="tarjeta">
+        <h2>Matrícula provisional de 2º de Bachillerato</h2>
+        <p class="nota-ayuda">Se descarga de Séneca (un fichero por modalidad). Se sueltan tal como vienen, sin cambiarles el nombre: se reconocen por sus columnas y se guardan como <code>RegMatPro …</code>. Son del curso en preparación. Quién tiene matrícula provisional se ve en Matrícula › Casos a mirar.</p>
+        <table class="listado descargas">
+          <thead><tr><th>Fichero</th><th>De cuándo es</th></tr></thead>
+          <tbody id="filasProvisionales"></tbody>
+        </table>
+      </div>
+      <div data-grupo="planificacion" class="tarjeta">
+        <h2>Planificación de matrícula (lo elegido en cada sobre)</h2>
+        <p class="nota-ayuda">Se descarga de Séneca en julio («Planificación de matrículas»): varios CSV por nivel. Se sueltan todos a la vez, tal como vienen, sin cambiarles el nombre. Son del curso en preparación. La web propone el nivel de cada uno y tú lo confirmas antes de guardar. Lo que falta en cada sobre se ve en Matrícula › A quién llamar.</p>
+        <table class="listado descargas">
+          <thead><tr><th>Fichero</th><th>Nivel</th><th>De cuándo es</th></tr></thead>
+          <tbody id="filasPlanificacion"></tbody>
+        </table>
+      </div>
+      <div data-grupo="expedientes" class="tarjeta">
+        <h2>Expedientes que hacen falta</h2>
+        <p class="oculto nota-ayuda" id="notaExpedientesCD">Los expedientes ya no se sueltan aquí: van dentro de la ficha del alumno que prepara el Centro de datos. Esto solo dice cuántos faltan.</p>
+        <div class="expedientes">
+          <div>
+            <strong>Primaria</strong>
+            <ul id="listaExpPrimaria"></ul>
+          </div>
+          <div>
+            <strong>Secundaria</strong>
+            <ul id="listaExpSecundaria"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<p class="pie" id="version"></p>
+<script src="version.js"></script>
+<script src="commit.js"></script>
+<script src="carpeta.js"></script>
+<script src="medidas.js"></script>
+<script src="entrar.js"></script>
+<script src="datos-puente.js"></script>
+<script src="datos-menu.js"></script>
+<script src="datos-pantalla.js"></script>
+<script src="datos-calendario.js"></script>
+<script src="datos-centro.js"></script>
+<script src="datos-equipo.js"></script>
+<script src="datos-cambios.js"></script>
+<script src="datos-cambioshoy.js"></script>
+<script src="datos-comprobaciones.js"></script>
+<script src="datos-portada.js"></script>
+<script src="datos-resumen.js"></script>
+<script src="datos-sinboton.js"></script>
+<script src="datos-descargas.js"></script>
+<script src="datos-centrodatos.js"></script>
+<script src="datos-descargastarea.js"></script>
+<script src="datos-ficheros.js"></script>
+<script src="datos-resolucion.js"></script>
+<script src="datos-objetivos.js"></script>
+<script src="datos.js"></script>
+<script src="menu.js"></script>
+<script src="actualizar-copia.js"></script>
+</body>
+</html>

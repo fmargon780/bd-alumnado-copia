@@ -1,12 +1,19 @@
 /* El puente de «Datos y configuración» de la web nueva (instrucción 138, parte 7). La pantalla es la de la app de hoy, cargada tal cual (datos-*.js, generados por construir-datos.mjs); esta pieza pone las pocas cosas de la app de
    hoy que esa pantalla da por hechas, sin llamar a Apps Script: dónde está el curso, cómo se piden el centro, quién entra, los cambios, las comprobaciones, las fechas, los ficheros de Séneca y el estado de la app (aquí, ficheros de
-   la carpeta privada que dejó el disparador), qué hacen los botones que están dentro del HTML (esta página no admite código dentro del HTML: se atienden desde aquí) y qué pasa con los que escriben. Solo mira: lo que cambia
-   datos (fechas, centro, equipo, cursos, ficheros, actualizar) se cambia en la app de hoy (fila 139). Se carga ANTES que la pantalla. */
+   la carpeta privada que dejó el disparador), qué hacen los botones que están dentro del HTML (esta página no admite código dentro del HTML: se atienden desde aquí) y qué pasa con los que escriben.
+   Instrucción 139, parte 2: si la aplicación ha preparado las subcarpetas de peticiones (`activarEscritura`), las fechas del curso, el centro, quién entra, los objetivos de «Quién viene», abrir, pasar a en marcha y cerrar
+   un curso y «Rehacer todo desde cero» se escriben aquí: `llamar` deja una petición (escritura.js), espera a que la aplicación la aplique, vuelve a leer los ficheros (que la aplicación ha rehecho antes de contestar) y
+   contesta con lo que contestó la función de hoy; la pantalla de hoy sigue como siempre. Lo demás que escribe (subir ficheros, contraseña de GitHub, diagnóstico...) se cambia en la app de hoy. Se carga ANTES que la pantalla. */
 (function () {
   'use strict';
   var C = window.CarpetaWeb;
   var INDICE = '_datos-indice.json';
-  var IND = null, GENERAL = null, CURSOS = {};
+  var IND = null, GENERAL = null, CURSOS = {}, CONTROL = null;
+  /* Lo que se puede escribir desde aquí (nombre de la función de hoy -> cuántos argumentos lleva; el servidor lo vuelve a comprobar) y las funciones de la pantalla que lo piden. */
+  var ESCRIBE = { webCalendarioGuardar: 2, webCentroGuardar: 1, webEquipoAlta: 1, webEquipoCorregir: 2, webEquipoBaja: 1, webEquipoReenviar: 1, webEquipoMiNombre: 1, webObjetivoGuardar: 4, webAbrirCurso: 1, webCerrarCurso: 2, webPasarAEnMarcha: 1, webRehacerTodo: 0 };
+  var UI_ESCRIBE = {};
+  ['guardarCentro_', 'guardarCalendario_', 'editarObjetivo_', 'equipoNuevo_', 'equipoMiNombre_', 'equipoGuardar_', 'equipoCancelar_', 'equipoCorregir_', 'equipoReenviar_', 'equipoBaja_', 'equipoCargoCambia_', 'cerrarCurso', 'abrirCurso', 'pasarAEnMarcha'].forEach(function (n) { UI_ESCRIBE[n] = true; });
+  var CAMPOS = '[id^="centro_"], [id^="equipo"], .cal-desde, .cal-hasta';   // los campos de los formularios que se pueden guardar
 
   window.CURSO_VISTO = '';
   window.PESTANA_ACTUAL = 'datos';
@@ -17,6 +24,7 @@
   window.escapaAtributo_ = function (t) { return String(t === null || t === undefined ? '' : t).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); };
   window.mensajeDeError = function (e) { return (e && e.message) ? e.message : String(e); };
   window.pintarCabeceraTarea_ = function () {};
+  window.pintarSelectores = function () { if (puente.alCambiarCursos) puente.alCambiarCursos(); };   // al abrir o cerrar un curso: el selector de cursos de la página
   window.cursoVistoInfo_ = function () {
     return window.ESTADO.abiertos.filter(function (c) { return c.curso === window.CURSO_VISTO; })[0] || { curso: window.CURSO_VISTO, estado: 'Cerrado' };
   };
@@ -66,7 +74,18 @@
   function responder(fn, args) {
     var cu = String(args[0] || window.CURSO_VISTO), c = CURSOS[cu] || {};
     var dato = function (v, que) { return v ? Promise.resolve(clon(v)) : Promise.reject(noPreparado(que)); };
+    if (Object.prototype.hasOwnProperty.call(ESCRIBE, fn)) {
+      if (!CONTROL) { soloEnLaApp(); return Promise.reject(new Error('Esto se cambia en la app de hoy.')); }
+      var n = ESCRIBE[fn], enviados = args.slice(0, n);
+      while (enviados.length < n) enviados.push(null);
+      return CONTROL.pedir(fn, enviados).then(function (e) {
+        if (e.estado !== 'hecha') throw new Error(e.error || 'No se ha podido guardar.');
+        var resultado = clon(e.resultado);
+        return recargar().then(function () { return resultado; }, function () { return resultado; });
+      });
+    }
     switch (fn) {
+      case 'webEstado': return IND ? Promise.resolve(Object.assign(clon(window.ESTADO), { abiertos: clon(IND.abiertos || []), cerrados: clon(IND.cerrados || []), cursoEnMarcha: IND.enMarcha || '', proximo: IND.proximo || '', urlBase: IND.urlApp || '', version: IND.version || '' })) : Promise.reject(noPreparado('el estado'));
       case 'webCentroLeer': return dato(GENERAL && GENERAL.centro, 'el centro');
       case 'webEquipoLeer': {
         var e = clon(GENERAL && GENERAL.equipo);
@@ -94,6 +113,7 @@
   /* Solo estos mueven la pantalla sin cambiar datos; cualquier otro escribe y no se ejecuta. */
   var LEER = {};
   ['cambiosCambiaFiltro_'].forEach(function (n) { LEER[n] = true; });
+  function vivo(n) { return !!(LEER[n] || (CONTROL && UI_ESCRIBE[n])); }   // con escritura activada, también las que guardan por `llamar`
 
   /* Parte un texto por un separador que no esté entre comillas simples. */
   function partir(texto, sep) {
@@ -131,7 +151,7 @@
       if (frase === 'return false') { ev.preventDefault(); return; }
       if (frase === 'event.stopPropagation()') { parar = true; return; }
       var m = /^([A-Za-z_$][\w$]*)\((.*)\)$/.exec(frase);
-      if (!m || !LEER[m[1]] || typeof window[m[1]] !== 'function') { soloEnLaApp(); return; }
+      if (!m || !vivo(m[1]) || typeof window[m[1]] !== 'function') { soloEnLaApp(); return; }
       var args;
       try { args = m[2].trim() === '' ? [] : partir(m[2], ',').map(function (t) { return valor(t, el, ev); }); } catch (e) { soloEnLaApp(); return; }
       window[m[1]].apply(null, args);
@@ -156,7 +176,7 @@
     return partir(t, ';').every(function (frase) {
       frase = frase.trim();
       var m = /^([A-Za-z_$][\w$]*)\(/.exec(frase);
-      return !frase || frase === 'return false' || frase === 'event.stopPropagation()' || !!(m && LEER[m[1]]);
+      return !frase || frase === 'return false' || frase === 'event.stopPropagation()' || !!(m && vivo(m[1]));
     });
   }
 
@@ -177,14 +197,27 @@
       if (escribe) el.setAttribute('data-escribe', '1');
     });
     Array.prototype.forEach.call(raiz.querySelectorAll('input, select, textarea'), function (el) {
-      var vivo = ['data-onclick', 'data-onchange', 'data-oninput'].some(function (a) { return el.hasAttribute(a); }) && !el.hasAttribute('data-escribe');
-      if (!vivo) el.disabled = true;
+      var activo = (['data-onclick', 'data-onchange', 'data-oninput'].some(function (a) { return el.hasAttribute(a); }) && !el.hasAttribute('data-escribe')) || !!(CONTROL && el.matches(CAMPOS));
+      if (!activo) el.disabled = true;
     });
-    Array.prototype.forEach.call(raiz.querySelectorAll('#botonesPortada button'), function (b) { b.setAttribute('data-escribe', '1'); });
+    if (!CONTROL) Array.prototype.forEach.call(raiz.querySelectorAll('#botonesPortada button'), function (b) { b.setAttribute('data-escribe', '1'); });   // con escritura, abrir, pasar a en marcha y cerrar un curso van por `llamar`
+  }
+
+  /* Vuelve a leer lo que la aplicación ha rehecho tras aplicar un cambio (el índice, lo general y lo del curso que se ve). */
+  async function recargar() {
+    var verlo = window.CURSO_VISTO;
+    IND = await C.leerJson(INDICE);
+    puente.poner(IND);
+    GENERAL = null;
+    await puente.cargarGeneral();
+    if (verlo) await puente.cargarCurso(verlo);
   }
 
   var puente = window.DatosPuente = {
     INDICE: INDICE,
+    /* Activa la escritura con el control de escritura.js (la aplicación ha preparado las subcarpetas de peticiones). */
+    activarEscritura: function (control) { CONTROL = control; },
+    escribe: function () { return !!CONTROL; },
     poner: function (indice) {
       IND = indice; CURSOS = {};
       window.ESTADO.abiertos = indice.abiertos || []; window.ESTADO.cerrados = indice.cerrados || []; window.ESTADO.proximo = indice.proximo || ''; window.ESTADO.centro.nombre = indice.centro || '';

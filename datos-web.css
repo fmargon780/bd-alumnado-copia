@@ -13,3 +13,5 @@
 button[data-escribe], a[data-escribe] { display: none; }
 #datosYConfiguracion input:disabled, #datosYConfiguracion textarea:disabled, #datosYConfiguracion select:disabled { opacity: .75; }
 a.cambiar-app { font-size: 12px; padding: 1px 8px; border: 1px solid #2266aa; border-radius: 6px; color: #2266aa; text-decoration: none; background: #fff; white-space: nowrap; }
+/* Instrucción 139, parte 2: con la escritura activada los campos de los formularios que se guardan se ven normales. */
+#datosYConfiguracion input:not(:disabled), #datosYConfiguracion select:not(:disabled) { opacity: 1; }

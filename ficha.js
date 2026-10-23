@@ -1,8 +1,8 @@
 /* Arranque de la ficha de la web nueva (instrucción 136): lee de la carpeta privada solo el fichero que lleva a ese alumno (un trozo de su unidad, o del reparto de antiguos),
-   lo dibuja con ficha-dibujo.js y mide cuánto tarda. Solo lee. Dirección: ficha.html?clave=…&curso=<curso escolar>&unidad=… (actuales) o ficha.html?clave=…&antiguo=1. */
+   lo dibuja con ficha-dibujo.js y mide cuánto tarda. Lee y, si la carpeta tiene las subcarpetas de peticiones (instrucción 139, ficha-escribir.js y escritura.js), también escribe notas, correcciones y marcas. Dirección: ficha.html?clave=…&curso=<curso escolar>&unidad=… (actuales) o ficha.html?clave=…&antiguo=1. */
 (function () {
   'use strict';
-  var C = window.CarpetaWeb, E = window.EntrarWeb, B = window.FichaBase, D = window.FichaDibujo;
+  var C = window.CarpetaWeb, E = window.EntrarWeb, B = window.FichaBase, D = window.FichaDibujo, X = window.EscrituraWeb, F = window.FichaEscribir;
   var $ = function (id) { return document.getElementById(id); };
   var T0 = performance.now();
   var Q = new URLSearchParams(location.search);
@@ -55,8 +55,32 @@
       }
     };
     var caja = $('ficha');
+    /* Instrucción 139: escribir desde aquí solo en un alumno actual de un curso que no está cerrado, y solo si la aplicación ha preparado las subcarpetas. Si no, la ficha sigue siendo de solo lectura. */
+    var escribe = !ANTIGUO && estado !== 'Cerrado' && await X.preparar();
+    var info = { clave: CLAVE, claveNotas: F.claveNotasDe(CLAVE), miCorreo: String(indice.miCorreo || ''), hora: hora };
+    var control = null;
+    function pintar() {
+      var a = escribe ? F.superponer(registro, control.entradas(), info) : registro;
+      caja.textContent = '';
+      caja.appendChild(D.dibujar(a, ctx));
+    }
+    function decir(texto, error) {
+      var linea = $('escritura');
+      linea.textContent = texto || '';
+      linea.className = 'estado-escritura' + (error ? ' estado-error' : '');
+      linea.hidden = !texto;
+    }
+    if (escribe) {
+      control = X.controlador({ alCambiar: pintar, alEstado: decir, alMedir: function (ms) { window.MedidasWeb.escribir(ms); } });
+      ctx.escribir = {
+        miCorreo: info.miCorreo, curso: CURSO, claveNotas: info.claveNotas, ui: { corregir: '', editarNota: '', borrador: '' }, aviso: decir, redibujar: pintar,
+        pedir: function (funcion, args) { return control.pedir(funcion, args); },
+        pedirCorreccion: function (a, cambios, motivo) { return control.pedir('webCorreccionGuardar', [CURSO, info.claveNotas, a.nombre, a.curso, cambios, motivo]); }
+      };
+      await control.cargar(hora);
+    }
     caja.textContent = '';
-    caja.appendChild(D.dibujar(registro, ctx));
+    pintar();
     document.title = 'Ficha · ' + (registro.nombre || '');
     $('datos').textContent = E.lineaHora(hora);
     $('pruebas').hidden = true;

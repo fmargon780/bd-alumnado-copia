@@ -90,7 +90,35 @@
   }
   function tituloOferta(t) { return String(t).replace('Columna en ALUMNADO', 'Columna en la ficha del alumno'); }
 
-  raiz.RevisionBase = { VISTAS: VISTAS, ACCION_CUADRE: ACCION_CUADRE, normalizar: normalizar, contadores: contadores, opciones: opciones, filas: filas, resumen: resumen, resumenCuadre: resumenCuadre, cuadreAbierto: cuadreAbierto,
+  /* Instrucción 139: la lectura `rev` con lo ya pedido por encima («Revisado, no es error», «Hecho», «Deshacer»), para que la pantalla cambie al momento y se acuerde de lo escrito hasta que la aplicación rehaga sus ficheros.
+     `entradas`: lo de escritura.js ({ funcion, args, estado, resultado, aplicada, creada }); `info`: { curso, miCorreo, hora }. Lo fallido no cuenta; lo hecho cuenta solo si se aplicó después de la hora de los datos. Devuelve `rev`
+     tal cual si no hay nada que poner. Solo copia las filas que cambian. */
+  function superponer(rev, entradas, info) {
+    var cambios = {}, hay = false;
+    (entradas || []).slice().sort(function (a, b) { return a.id < b.id ? -1 : 1; }).forEach(function (e) {
+      if (e.estado === 'fallida') return;
+      if (e.estado === 'hecha' && e.aplicada && info.hora && String(e.aplicada) <= String(info.hora)) return;
+      var ar = e.args || [];
+      if (ar[0] !== info.curso) return;
+      if (e.funcion === 'webRevisionMarcar') { cambios[ar[1] + '|' + ar[2]] = e.estado === 'hecha' && e.resultado ? e.resultado : { quien: info.miCorreo, cuando: e.creada, nota: String(ar[3] || '') }; hay = true; }
+      else if (e.funcion === 'webRevisionDeshacer') { cambios[ar[1] + '|' + ar[2]] = null; hay = true; }
+    });
+    if (!hay || !rev) return rev;
+    var salida = Object.assign({}, rev);
+    ['avisos', 'matricula', 'cuadre', 'cambios'].forEach(function (k) {
+      if (!rev[k]) return;
+      salida[k] = rev[k].map(function (f) {
+        var c = (f.tipo || k) + '|' + f.clave;
+        if (!(c in cambios)) return f;
+        var g = Object.assign({}, f);
+        if (cambios[c]) g.revisado = cambios[c]; else delete g.revisado;
+        return g;
+      });
+    });
+    return salida;
+  }
+
+  raiz.RevisionBase = { superponer: superponer, VISTAS: VISTAS, ACCION_CUADRE: ACCION_CUADRE, normalizar: normalizar, contadores: contadores, opciones: opciones, filas: filas, resumen: resumen, resumenCuadre: resumenCuadre, cuadreAbierto: cuadreAbierto,
     estadoTablaCuadre: estadoTablaCuadre, nombreDePersona: nombreDePersona, fechaCorta: fechaCorta, textoRevisado: textoRevisado, indicePorNombre: indicePorNombre, filasOferta: filasOferta, tituloOferta: tituloOferta };
   if (typeof module !== 'undefined' && module.exports) module.exports = raiz.RevisionBase;
 })(typeof window !== 'undefined' ? window : globalThis);

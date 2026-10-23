@@ -52,3 +52,19 @@
 .nota { border-bottom: 1px solid var(--borde); padding: 6px 0; font-size: 13px; }
 .nota .meta { color: #889; font-size: 11.5px; }
 .meta-revisado { font-size: 11.5px; color: #889; }
+/* Instrucción 139: escribir desde la ficha (notas, correcciones, marcas). */
+.nota-pendiente { opacity: .75; }
+.fila-botones { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.fila-botones button, button.pequeno { font: inherit; font-size: 12.5px; padding: 3px 10px; border: 1px solid var(--borde); border-radius: 4px; background: #fff; cursor: pointer; }
+.fila-botones button.principal, button.principal { background: var(--acento); border-color: var(--acento); color: #fff; }
+.fila-botones button.peligro, button.peligro { border-color: #b3261e; color: #b3261e; }
+.fila-botones button:disabled { opacity: .5; cursor: default; }
+.corr-form { background: #fff; border: 1px solid var(--borde); border-radius: 5px; padding: 6px 8px; margin: 4px 0; }
+.corr-fila { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 3px 0; font-size: 12.5px; }
+.corr-fila label { min-width: 11em; font-weight: 600; }
+.corr-fila input[type=text] { flex: 1 1 18em; font: inherit; font-size: 12.5px; padding: 2px 5px; }
+.corr-fila input[type=number], .corr-fila select { font: inherit; font-size: 12.5px; padding: 1px 4px; }
+.corr-fila input[type=number] { width: 9em; }
+.nota textarea, .nota-nueva textarea { width: 100%; box-sizing: border-box; font: inherit; font-size: 13px; padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; }
+.nota-nueva { margin-top: 8px; }
+.nota-acciones { margin-top: 4px; }

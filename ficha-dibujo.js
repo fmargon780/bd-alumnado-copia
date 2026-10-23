@@ -1,7 +1,9 @@
 /* La ficha del alumno de la web nueva (instrucción 136): los mismos recuadros, con los mismos datos y la misma disposición que la ficha de hoy (JsBuscadorFicha.html y sus Js*Ficha*),
    pero SOLO PARA LEER. Donde la de hoy tiene un botón que escribe (Corregir, marcas de Jefatura, añadir nota, preparar un informe) esta pone «Cambiar en la app de hoy», que abre esa ficha
    en la app de hoy en otra pestaña. Lo que viene del fichero (`registro`) es la ficha ya montada por el disparador (FichaWeb.gs). No llama a ningún sitio.
-   ctx = { urlApp, clave, antiguo, estado ('En marcha' | 'Cerrado' | …), unido, nombres: { correo: nombre }, pedirSituacion(idEscolar) -> promesa }. */
+   ctx = { urlApp, clave, antiguo, estado ('En marcha' | 'Cerrado' | …), unido, nombres: { correo: nombre }, pedirSituacion(idEscolar) -> promesa, escribir }.
+   Instrucción 139: si `ctx.escribir` existe (la carpeta privada tiene las subcarpetas de peticiones; ficha-escribir.js), las notas, las correcciones de Trayectoria y NEAE y las marcas de Jefatura se escriben aquí
+   mismo, como en la ficha de hoy; sin él, o en un curso cerrado, queda el enlace «Cambiar en la app de hoy». */
 (function (raiz) {
   'use strict';
   var B = raiz.FichaBase, H = raiz.FichaHistorico, h = B.h, p = B.p, campo = B.campo, recuadro = B.recuadro;
@@ -48,7 +50,7 @@
       return h('div', 'corr-nota', etiquetas[d] + ': ' + (x.valor === '' || x.valor == null ? '' : x.valor) + ' · Corregido por ' + (x.quien || '?') + ' el ' + B.fecha(x.cuando) + (x.motivo ? ': ' + x.motivo : ''));
     });
     var pendiente = a.correccionesPendientes ? h('div', 'corr-nota', fraseEspera(ctx) + (corr(a, 'pil') || ctx.unido ? '' : ' El PIL se recalculará en la próxima actualización de datos.')) : null;
-    var cambiar = (!cerrado && !B.esBachillerato(a)) ? B.filaCambiar(ctx) : null;
+    var cambiar = (!cerrado && !B.esBachillerato(a)) ? (ctx.escribir ? raiz.FichaEscribir.trayectoriaCorregir(a, ctx) : B.filaCambiar(ctx)) : null;
     return recuadro('Trayectoria', [h('div', 'traz-arriba', pares)].concat(notas, [pendiente, cambiar, H.historico(a.historico, a.mh, (a.matricula || {}).materias)]), 'ficha-doble');
   }
 
@@ -63,7 +65,7 @@
       return h('div', 'corr-nota', 'Corregido por ' + (x.quien || '?') + ' el ' + B.fecha(x.cuando));
     });
     return recuadro('NEAE', [p([h('span', 'campo', 'Necesidades:'), ' '].concat(origen(n.neae, 'neae'))), p([h('span', 'campo', 'Medidas y recursos:'), ' '].concat(origen(n.medidas, 'medidas')))]
-      .concat(notas, [(cerrado || B.esBachillerato(a)) ? null : B.filaCambiar(ctx)]));
+      .concat(notas, [(cerrado || B.esBachillerato(a)) ? null : (ctx.escribir ? raiz.FichaEscribir.neaeCorregir(a, ctx) : B.filaCambiar(ctx))]));
   }
 
   function matricula(a) {
@@ -77,6 +79,7 @@
   }
 
   function marcas(a, ctx, cerrado) {
+    if (ctx.escribir && !cerrado) return raiz.FichaEscribir.marcas(a, ctx);
     var m = a.marcas || {}, et = { conflictivo: 'Conflictivo', bilingue: 'Pide bilingüe', exentoFrances: 'Exento de francés' };
     var cajas = ['conflictivo', 'bilingue', 'exentoFrances'].map(function (c) {
       var i = h('input'); i.type = 'checkbox'; i.checked = !!m[c]; i.disabled = true;
@@ -137,6 +140,7 @@
   }
 
   function observaciones(a, ctx, cerrado) {
+    if (ctx.escribir && !cerrado) return raiz.FichaEscribir.observaciones(a, ctx, cerrado);
     var lista = (a.notas || []).map(function (n) {
       var llamada = n.tipo === 'llamada';
       var texto = llamada ? 'Llamada' + (n.via ? ' · ' + n.via : '') + (n.resultado ? ' · ' + n.resultado : '') + (n.texto ? ' · ' + n.texto : '') : n.texto;

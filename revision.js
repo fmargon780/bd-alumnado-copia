@@ -1,13 +1,14 @@
 /* Arranque de «Revisión» de la web nueva (instrucción 138, parte 3): lee de la carpeta privada el índice y el fichero del curso y dibuja la «Revisión» de hoy (avisos, matrícula con el cuadre debajo, cambios para Séneca y oferta de materias),
-   solo para leer. Donde la de hoy tiene un botón que escribe («Revisado, no es error», «Hecho», «Deshacer», editar la oferta) esta pone «Cambiar en la app de hoy». Pulsar el nombre de un alumno abre su ficha nueva. Los filtros se recuerdan en
+   y, desde la instrucción 139, «Revisado, no es error», «Hecho» y «Deshacer» se escriben aquí mismo (escritura.js: se deja una petición que la aplicación aplica); editar la oferta sigue en «Cambiar en la app de hoy». Pulsar el nombre de un alumno abre su ficha nueva. Los filtros se recuerdan en
    este navegador con la misma clave que la app de hoy. Las cuentas son de revision-base.js. */
 (function () {
   'use strict';
-  var C = window.CarpetaWeb, E = window.EntrarWeb, B = window.RevisionBase;
+  var C = window.CarpetaWeb, E = window.EntrarWeb, B = window.RevisionBase, X = window.EscrituraWeb;
   var $ = function (id) { return document.getElementById(id); };
   var T0 = performance.now();
   var INDICE = '_revision-indice.json';
-  var IND = null, CURSO = '', DATOS = null, POR_NOMBRE = {};
+  var IND = null, CURSO = '', DATOS = null, POR_NOMBRE = {}, HORA = '', CONTROL = null, REV = null, OF = null;   // REV: la lectura con lo ya pedido por encima; OF: la oferta que se está editando (copia de la del fichero)
+  var OF_ERRORES = {}, OF_SUCIO = false, OF_GUARDANDO = false, OF_MENSAJE = '';
   var VISTA = 'avisos', TIPO = '', ORDEN = { campo: 'curso', asc: true }, CUADRE_TOCADO = null, FILTRO_OFERTA = null;   // null: todavía no se ha elegido curso en la oferta
   var FILTROS = filtrosGuardados();
 
@@ -27,7 +28,7 @@
 
   /* ---------------------------------------------------------------- pestañas y filtros */
   function pintarPestanas() {
-    var caja = $('pestanas'), cuentas = B.contadores(DATOS.rev);
+    var caja = $('pestanas'), cuentas = B.contadores(REV);
     caja.textContent = '';
     B.VISTAS.forEach(function (v) {
       var b = el('button', v.clave === VISTA ? 'actual' : '', v.etiqueta);
@@ -52,7 +53,7 @@
   function etiqueta(texto, hijo) { var l = el('label'); l.appendChild(document.createTextNode(texto)); l.appendChild(hijo); return l; }
 
   function pintarFiltros() {
-    var caja = $('filtros'), op = B.opciones(DATOS.rev, VISTA);
+    var caja = $('filtros'), op = B.opciones(REV, VISTA);
     caja.textContent = '';
     caja.appendChild(etiqueta('Curso: ', select(op.cursos, FILTROS.curso, 'Todos', function (v) { FILTROS.curso = v; guardarFiltros(); pintar(); })));
     caja.appendChild(etiqueta('Unidad: ', select(op.unidades, FILTROS.unidad, 'Todas', function (v) { FILTROS.unidad = v; guardarFiltros(); pintar(); })));
@@ -80,7 +81,17 @@
     celda(tr, f.frase, 'frase-revision');
     var td = celda(tr, null);
     if (f.revisado) td.appendChild(el('span', 'meta-revisado', B.textoRevisado(f.revisado, IND.nombres) + ' '));
-    td.appendChild(enlaceApp(f.revisado ? 'Deshacer en la app de hoy' : accion + ' (en la app de hoy)'));
+    if (!CONTROL) td.appendChild(enlaceApp(f.revisado ? 'Deshacer en la app de hoy' : accion + ' (en la app de hoy)'));
+    else {
+      var b = el('button', 'pequeno', f.revisado ? 'Deshacer' : accion);
+      b.type = 'button';
+      b.addEventListener('click', function () {
+        if (f.revisado) { CONTROL.pedir('webRevisionDeshacer', [CURSO, f.tipo, f.clave]); return; }
+        var nota = window.prompt('Nota (opcional, una línea):', '') || '';   // como hoy: cancelar es dejarla en blanco
+        CONTROL.pedir('webRevisionMarcar', [CURSO, f.tipo, f.clave, nota]);
+      });
+      td.appendChild(b);
+    }
     return tr;
   }
 
@@ -88,11 +99,11 @@
     var det = $('cuadreEnComprobar');
     det.hidden = VISTA !== 'matricula';
     if (VISTA !== 'matricula') return;
-    det.open = B.cuadreAbierto(DATOS.rev, CUADRE_TOCADO);
-    $('resumenCuadre').textContent = B.resumenCuadre(DATOS.rev);
+    det.open = B.cuadreAbierto(REV, CUADRE_TOCADO);
+    $('resumenCuadre').textContent = B.resumenCuadre(REV);
     var cuerpo = $('filasCuadre');
     cuerpo.textContent = '';
-    var filas = B.filas(DATOS.rev, 'cuadre', { curso: FILTROS.curso, unidad: FILTROS.unidad, verRevisados: FILTROS.verRevisados }, ORDEN);
+    var filas = B.filas(REV, 'cuadre', { curso: FILTROS.curso, unidad: FILTROS.unidad, verRevisados: FILTROS.verRevisados }, ORDEN);
     filas.forEach(function (f) { cuerpo.appendChild(filaLinea(f, B.ACCION_CUADRE)); });
     if (!filas.length) { var v = el('tr'); celda(v, 'Nada que no cuadre.').colSpan = 5; cuerpo.appendChild(v); }
     var tablas = $('tablasCuadre');
@@ -139,8 +150,8 @@
     });
     cab.appendChild(el('th'));
     pintarFiltros();
-    var filas = B.filas(DATOS.rev, VISTA, { curso: FILTROS.curso, unidad: FILTROS.unidad, tipo: TIPO, verRevisados: FILTROS.verRevisados }, ORDEN);
-    $('resumen').textContent = B.resumen(DATOS.rev, VISTA, filas.length);
+    var filas = B.filas(REV, VISTA, { curso: FILTROS.curso, unidad: FILTROS.unidad, tipo: TIPO, verRevisados: FILTROS.verRevisados }, ORDEN);
+    $('resumen').textContent = B.resumen(REV, VISTA, filas.length);
     var cuerpo = $('filas');
     cuerpo.textContent = '';
     var trozo = document.createDocumentFragment();
@@ -151,6 +162,86 @@
   }
 
   /* ---------------------------------------------------------------- la oferta de materias, solo para leer */
+  /* Instrucción 139, parte 2: la oferta se edita aquí (como en la app de hoy: añadir fila, quitar fila con confirmación y un solo «Guardar»; si alguna celda no vale no se guarda nada y se marca). */
+  function ofertaEditable() { return !!(CONTROL && DATOS.oferta && DATOS.oferta.editable); }
+  function ofertaCambia(i, c, valor) {
+    OF[i][c] = valor; OF_SUCIO = true; OF_MENSAJE = '';
+    if (OF_ERRORES[i] && OF_ERRORES[i][c]) delete OF_ERRORES[i][c];
+    var b = $('botonGuardarOferta'); if (b) b.disabled = false;
+    var d = $('botonDescartarOferta'); if (d) d.disabled = false;
+  }
+  function ofertaGuardar() {
+    if (OF_GUARDANDO) return;
+    /* Las filas enteramente vacías no se mandan (el servidor tampoco las cuenta): así el número de fila de los errores es el de aquí. */
+    var indices = [];
+    OF.forEach(function (f, i) { if (f.some(function (v) { return String(v).trim() !== ''; })) indices.push(i); });
+    var enviar = indices.map(function (i) { return OF[i].slice(); });
+    OF_GUARDANDO = true; OF_ERRORES = {}; pintarOferta();
+    CONTROL.pedir('webOfertaGuardar', [CURSO, enviar]).then(function (e) {
+      OF_GUARDANDO = false;
+      if (e.estado !== 'hecha') { OF_MENSAJE = ''; pintarOferta(); window.alert('No he podido guardar la oferta. ' + (e.error || '')); return; }
+      var r = e.resultado || {};
+      if (!r.ok) {
+        (r.errores || []).forEach(function (er) { var real = indices[er.fila]; (OF_ERRORES[real] = OF_ERRORES[real] || {})[er.columna] = er.texto; });
+        OF_MENSAJE = 'No se ha guardado nada: hay ' + (r.errores || []).length + ' celda(s) que no valen. Están marcadas en rojo.';
+        pintarOferta();
+        return;
+      }
+      OF = enviar.map(function (f) { return f.slice(); });
+      DATOS.oferta.filas = enviar.map(function (f) { return f.slice(); });
+      OF_SUCIO = false; OF_MENSAJE = 'Guardado. Se aplicará en la próxima actualización de datos.';
+      pintarOferta();
+    });
+  }
+  function pintarOfertaEditable(o, tabla, nota) {
+    if (!OF) { OF = o.filas.map(function (f) { return f.slice(); }); OF_ERRORES = {}; OF_SUCIO = false; OF_MENSAJE = ''; }
+    var viejas = document.querySelectorAll('#tarjetaOferta datalist, #tarjetaOferta .of-botones');
+    Array.prototype.forEach.call(viejas, function (x) { x.parentNode.removeChild(x); });
+    function lista(id, valores) { var d = el('datalist'); d.id = id; valores.concat(id === 'ofListaQuien' ? ['Solo quienes cursan '] : []).forEach(function (v) { var op = el('option'); op.value = v; d.appendChild(op); }); return d; }
+    $('tarjetaOferta').appendChild(lista('ofListaQuien', o.opcionesQuien || []));
+    $('tarjetaOferta').appendChild(lista('ofListaColumna', o.columnas || []));
+    nota.textContent = 'Aquí se edita la oferta de materias: «Añadir fila», «Quitar» (se confirma) y un solo «Guardar». Se aplica en la próxima actualización de datos.';
+    var cab = el('tr');
+    o.titulos.forEach(function (t) { cab.appendChild(el('th', '', B.tituloOferta(t))); });
+    cab.appendChild(el('th'));
+    tabla.appendChild(el('thead')).appendChild(cab);
+    var cuerpo = el('tbody');
+    OF.forEach(function (f, i) {
+      if (FILTRO_OFERTA && f[0] !== FILTRO_OFERTA) return;
+      var tr = el('tr');
+      f.forEach(function (v, c) {
+        var td = el('td'), inp = el('input'), mal = (OF_ERRORES[i] || {})[c];
+        inp.type = 'text'; inp.value = v;
+        if (c === 2) inp.setAttribute('list', 'ofListaQuien'); else if (c === 6) inp.setAttribute('list', 'ofListaColumna');
+        if (mal) { inp.className = 'of-mal'; inp.title = mal; }
+        inp.addEventListener('input', function () { ofertaCambia(i, c, inp.value); });
+        td.appendChild(inp);
+        if (mal) td.appendChild(el('div', 'of-error', mal));
+        tr.appendChild(td);
+      });
+      var tq = el('td'), q = el('button', 'pequeno peligro', '✕');
+      q.type = 'button'; q.title = 'Quitar fila';
+      q.addEventListener('click', function () {
+        if (!window.confirm('¿Quitar la fila «' + (f[1] || 'sin materia') + '» (' + (f[0] || 'sin curso') + ')? No se borra de verdad hasta que pulses «Guardar».')) return;
+        OF.splice(i, 1); OF_ERRORES = {}; OF_SUCIO = true; OF_MENSAJE = ''; pintarOferta();
+      });
+      tq.appendChild(q); tr.appendChild(tq);
+      cuerpo.appendChild(tr);
+    });
+    if (!cuerpo.firstChild) { var v = el('tr'); celda(v, o.existe ? 'Este curso no tiene materias en la oferta.' : 'Todavía no hay oferta de materias escrita: se crea al guardar.').colSpan = o.titulos.length + 1; cuerpo.appendChild(v); }
+    tabla.appendChild(cuerpo);
+    var barra = el('div', 'fila-botones of-botones');
+    var anadir = el('button', 'pequeno', 'Añadir fila'); anadir.type = 'button';
+    anadir.addEventListener('click', function () { var n = ['', '', '', '', '', '', '', '']; n[0] = FILTRO_OFERTA || ''; OF.push(n); OF_SUCIO = true; OF_MENSAJE = ''; pintarOferta(); });
+    var guardar = el('button', 'principal pequeno', 'Guardar'); guardar.type = 'button'; guardar.id = 'botonGuardarOferta'; guardar.disabled = !(OF_SUCIO && !OF_GUARDANDO);
+    guardar.addEventListener('click', ofertaGuardar);
+    var descartar = el('button', 'pequeno', 'Descartar los cambios'); descartar.type = 'button'; descartar.id = 'botonDescartarOferta'; descartar.disabled = !OF_SUCIO;
+    descartar.addEventListener('click', function () { if (!window.confirm('¿Descartar los cambios sin guardar?')) return; OF = null; pintarOferta(); });
+    [anadir, guardar, descartar].forEach(function (b) { barra.appendChild(b); });
+    if (Object.keys(OF_ERRORES).length || OF_MENSAJE) barra.appendChild(el('span', Object.keys(OF_ERRORES).length ? 'of-error-resumen' : 'of-nota', OF_MENSAJE));
+    $('tarjetaOferta').appendChild(barra);
+  }
+
   function pintarOferta() {
     var o = DATOS.oferta, tabla = $('tablaOferta');
     tabla.textContent = '';
@@ -163,6 +254,7 @@
     var nota = $('notaOferta');
     nota.textContent = '';
     if (!o) { nota.textContent = 'La oferta todavía no está preparada: la aplicación la deja hecha en su vuelta de cada hora.'; return; }
+    if (ofertaEditable()) { pintarOfertaEditable(o, tabla, nota); return; }
     nota.appendChild(document.createTextNode('Para cambiar la oferta de materias: '));
     nota.appendChild(enlaceApp('Cambiar en la app de hoy'));
     var cab = el('tr');
@@ -176,6 +268,7 @@
   }
 
   function pintar() {
+    REV = CONTROL ? B.superponer(DATOS.rev, CONTROL.entradas(), { curso: CURSO, miCorreo: IND.miCorreo || '', hora: HORA }) : DATOS.rev;
     pintarPestanas();
     var oferta = VISTA === 'oferta';
     $('tarjetaRevision').hidden = oferta;
@@ -191,6 +284,9 @@
     POR_NOMBRE = {};
     try { var b = await C.leerJson('_buscador-' + curso + '.json'); POR_NOMBRE = B.indicePorNombre(b.alumnos); } catch (e) { /* sin buscador, los nombres salen sin enlace */ }
     $('datos').textContent = E.lineaHora(c.hora || IND.hora);
+    HORA = c.hora || IND.hora || '';
+    OF = null;
+    if (CONTROL) await CONTROL.cargar(HORA);
     pintar();
   }
 
@@ -206,6 +302,11 @@
     sel.addEventListener('change', function () { FILTROS.curso = ''; FILTROS.unidad = ''; cargarCurso(sel.value).then(null, function (e) { E.problema(e.message); }); });
     $('selOferta').addEventListener('change', function () { FILTRO_OFERTA = $('selOferta').value; pintarOferta(); });
     $('resumenCuadre').addEventListener('click', function () { CUADRE_TOCADO = !$('cuadreEnComprobar').open; });   // como hoy: lo que la persona toca manda
+    /* Instrucción 139: se escribe aquí solo si la aplicación ha preparado las subcarpetas de peticiones; si no, quedan los enlaces a la app de hoy. */
+    if (await X.preparar()) {
+      CONTROL = X.controlador({ alCambiar: function () { if (DATOS) pintar(); }, alMedir: function (ms) { window.MedidasWeb.escribir(ms); },
+        alEstado: function (texto, error) { var l = $('escritura'); l.textContent = texto || ''; l.className = 'estado-escritura' + (error ? ' estado-error' : ''); l.hidden = !texto; } });
+    }
     await cargarCurso(elegido.curso);
     $('pruebas').hidden = true;
     $('revision').hidden = false;

@@ -3,7 +3,7 @@
    app de hoy (datos-puente.js). */
 (function () {
   'use strict';
-  var C = window.CarpetaWeb, E = window.EntrarWeb, P = window.DatosPuente;
+  var C = window.CarpetaWeb, E = window.EntrarWeb, P = window.DatosPuente, X = window.EscrituraWeb;
   var $ = function (id) { return document.getElementById(id); };
   var T0 = performance.now(), MEDIDO = false;
   var IND = null, PASO = 'fechas';
@@ -39,6 +39,7 @@
     window.limpiarAviso();
     ['tab-datos', 'tab-portada', 'tab-descargas'].forEach(function (id) { $(id).classList.toggle('oculto', id !== ZONA[paso]); });
     window.VISTA_DATOS_ = paso;
+    $('rehacer').hidden = !(P.escribe() && paso === 'estado');
     pintarPasos();
     if (ZONA[paso] === 'tab-datos') window.cargarDatosYConfiguracion_();
     else if (ZONA[paso] === 'tab-descargas') window.cargarDescargas();
@@ -59,13 +60,25 @@
     P.poner(IND);
     var cursos = P.cursos();
     if (!cursos.length) throw new Error('«Datos y configuración» todavía no está preparado.');
+    /* Instrucción 139, parte 2: se escribe aquí solo si la aplicación ha preparado las subcarpetas de peticiones; si no, queda el enlace a la app de hoy. */
+    if (await X.preparar()) {
+      P.activarEscritura(X.controlador({ alCambiar: function () {}, alMedir: function (ms) { window.MedidasWeb.escribir(ms); },
+        alEstado: function (texto, error) { var l = $('escritura'); l.textContent = texto || ''; l.className = 'estado-escritura' + (error ? ' estado-error' : ''); l.hidden = !texto; } }));
+      $('soloMirar').textContent = 'Las fechas, el centro, quién entra, los objetivos y los cursos se cambian aquí; subir ficheros y la contraseña de GitHub, no.';
+      $('rehacerBoton').addEventListener('click', function () { window.rehacerTodoNuevo_(); });
+    }
     try { await P.cargarGeneral(); } catch (e) { window.avisar(e.message, 'error'); }
     var elegido = cursos.indexOf(IND.enMarcha) !== -1 ? IND.enMarcha : cursos[0];
     if (IND.urlApp) $('enlaceApp').href = IND.urlApp;
     var sel = $('selCurso');
-    sel.textContent = '';
-    cursos.forEach(function (c) { var o = document.createElement('option'); o.value = c; o.textContent = 'Curso ' + c; sel.appendChild(o); });
-    sel.value = elegido; sel.hidden = cursos.length < 2;
+    function rellenarSelector() {
+      var actual = sel.value || elegido, lista = P.cursos();
+      sel.textContent = '';
+      lista.forEach(function (c) { var o = document.createElement('option'); o.value = c; o.textContent = 'Curso ' + c; sel.appendChild(o); });
+      sel.value = lista.indexOf(actual) !== -1 ? actual : lista[0]; sel.hidden = lista.length < 2;
+    }
+    P.alCambiarCursos = rellenarSelector;
+    rellenarSelector();
     sel.addEventListener('change', function () { ver(sel.value); });
     $('pruebas').hidden = true;
     $('datosYConfiguracion').hidden = false;

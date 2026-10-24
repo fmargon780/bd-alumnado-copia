@@ -14,7 +14,7 @@
   function aDom(n) {
     if (typeof n === 'string') return document.createTextNode(n);
     var el = document.createElement(n.t);
-    Object.keys(n.a).forEach(function (k) { if (k === 'href' && n.a[k] !== '#' && !/^https:\/\//.test(n.a[k])) return; el.setAttribute(k, n.a[k]); });
+    Object.keys(n.a).forEach(function (k) { if (k === 'href' && n.a[k] !== '#' && !/^https:\/\//.test(n.a[k]) && !/^[a-z]+\.html(\?[A-Za-z0-9=&_.-]*)?$/.test(n.a[k])) return; el.setAttribute(k, n.a[k]); });
     n.c.forEach(function (x) { el.appendChild(aDom(x)); });
     return el;
   }
@@ -44,9 +44,9 @@
 
   async function cargar() {
     var ind;
-    try { ind = await C.leerJson(INDICE); } catch (e) { throw new Error('«Hoy» todavía no está preparado: la aplicación lo deja hecho en su vuelta de cada hora.'); }
+    try { ind = await C.leerJson(INDICE); } catch (e) { throw new Error('«Inicio» todavía no está preparado: la aplicación lo deja hecho en su vuelta de cada hora.'); }
     var cursos = ind.cursos || [];
-    if (!cursos.length) throw new Error('«Hoy» todavía no está preparado.');
+    if (!cursos.length) throw new Error('«Inicio» todavía no está preparado.');
     /* Instrucción 139, parte 5: «Está bien» de «Por mirar» se contesta aquí si la aplicación ha preparado las subcarpetas de peticiones; si no, queda el enlace a la app de hoy. */
     if (await X.preparar()) {
       CONTROL = X.controlador({ alCambiar: function () {}, alMedir: function (ms) { window.MedidasWeb.escribir(ms); },
@@ -74,5 +74,5 @@
   }
 
   window.WebNueva = { resumenMedidas: function () { return window.MedidasWeb.resumen(); } };
-  E.empezar(cargar, 'No he podido leer «Hoy». Puede que la aplicación todavía no lo haya preparado.');
+  E.empezar(cargar, 'No he podido leer «Inicio». Puede que la aplicación todavía no lo haya preparado.');
 })();

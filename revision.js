@@ -9,7 +9,13 @@
   var INDICE = '_revision-indice.json';
   var IND = null, CURSO = '', DATOS = null, POR_NOMBRE = {}, HORA = '', CONTROL = null, REV = null, OF = null;   // REV: la lectura con lo ya pedido por encima; OF: la oferta que se está editando (copia de la del fichero)
   var OF_ERRORES = {}, OF_SUCIO = false, OF_GUARDANDO = false, OF_MENSAJE = '';
-  var VISTA = 'avisos', TIPO = '', ORDEN = { campo: 'curso', asc: true }, CUADRE_TOCADO = null, FILTRO_OFERTA = null;   // null: todavía no se ha elegido curso en la oferta
+  /* Instrucción 149: dentro de una tarea, el paso lo dice la dirección (`?tarea=inicio&paso=avisos`) y la fila de pasos la pinta el menú; sin tarea, quedan las pestañas de siempre. */
+  var ENTRADA_VISTA = (function () {
+    var q = new URLSearchParams(location.search), tarea = q.get('tarea'), paso = q.get('paso');
+    var p = (tarea && window.HoyBase) ? window.HoyBase.pasosDeTarea({}, tarea).filter(function (x) { return x.clave === paso && x.tab === 'revision'; })[0] : null;
+    return p ? p.vista : '';
+  })();
+  var VISTA = ENTRADA_VISTA || 'avisos', TIPO = '', ORDEN = { campo: 'curso', asc: true }, CUADRE_TOCADO = null, FILTRO_OFERTA = null;   // null: todavía no se ha elegido curso en la oferta
   var FILTROS = filtrosGuardados();
 
   $('version').textContent = window.VERSION_WEB + ' · ' + (window.COMMIT_WEB || 'sin-marca') + (E.DESDE_DISCO ? ' · copia sin internet' : '');
@@ -30,6 +36,7 @@
   function pintarPestanas() {
     var caja = $('pestanas'), cuentas = B.contadores(REV);
     caja.textContent = '';
+    caja.hidden = !!ENTRADA_VISTA;   // dentro de una tarea no se ven (los pasos los pinta el menú), pero se siguen poniendo al día
     B.VISTAS.forEach(function (v) {
       var b = el('button', v.clave === VISTA ? 'actual' : '', v.etiqueta);
       b.type = 'button';
@@ -267,12 +274,23 @@
     tabla.appendChild(cuerpo);
   }
 
+  /* El menú (menu.js) deja pasar sin recargar los pasos que esta pantalla sabe enseñar. */
+  window.MenuPasoEnSitio = function (tarea, paso) {
+    var p = window.HoyBase.pasosDeTarea({}, tarea).filter(function (x) { return x.clave === paso && x.tab === 'revision'; })[0];
+    if (!p || !DATOS) return false;
+    VISTA = p.vista; TIPO = '';
+    pintar();
+    return true;
+  };
+
   function pintar() {
     REV = CONTROL ? B.superponer(DATOS.rev, CONTROL.entradas(), { curso: CURSO, miCorreo: IND.miCorreo || '', hora: HORA }) : DATOS.rev;
     pintarPestanas();
-    var oferta = VISTA === 'oferta';
-    $('tarjetaRevision').hidden = oferta;
+    var oferta = VISTA === 'oferta', excel = VISTA === 'excel';
+    $('tarjetaRevision').hidden = oferta || excel;
     $('tarjetaOferta').hidden = !oferta;
+    $('tarjetaExcel').hidden = !excel;
+    if (excel) { var a = $('enlaceExcel'); if (IND && IND.urlApp) a.href = IND.urlApp; return; }   // el Excel de Jefatura todavía se hace en la app de hoy
     if (oferta) pintarOferta(); else pintarLista();
   }
 

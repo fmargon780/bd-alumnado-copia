@@ -29,6 +29,7 @@
         return false;
       }
       problema('');
+      document.dispatchEvent(new Event('web-carpeta-lista'));   // instrucción 149: el menú (menu.js) lee entonces las tareas en marcha y el estado de los pasos
       try { await C.guardada(handle); } catch (e) { /* sin recordarla: se pedirá otra vez */ }
       try { await cargar(); } catch (e) { problema((e && e.message) || textoError); return false; }
       return true;

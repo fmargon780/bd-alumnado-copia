@@ -63,7 +63,11 @@
     }
     m.appendChild(d);
   }
-  window.irAPaso_ = function () { soloEnLaApp(); };
+  window.irAPaso_ = function (tarea, paso) {   // instrucción 149: un apartado de Configuración o el paso de una tarea se abre en su sitio; lo demás sigue en la app de hoy
+    var d = window.HoyBase && window.HoyBase.direccionIrAPaso(tarea, paso);
+    if (d) location.href = d; else soloEnLaApp();
+  };
+  window.irATareaPaso_ = window.irAPaso_;
   window.irADonde_ = function () { soloEnLaApp(); };
   window.recargarTodoTrasCambio_ = function () {};
 

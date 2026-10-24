@@ -1,0 +1,9 @@
+/* «Tránsito» de la web nueva (instrucción 149, parte 2): lo que la pantalla de la app de hoy (transito-pantalla.js, generada) toma de la página de hoy y esta no tiene. Esta página no admite estilos dentro del HTML:
+   los `style="…"` de la pantalla de hoy se aplican desde transito-puente.js. */
+#transitoWeb { --tarjeta: #fff; --borde: #d9dee5; --texto: #1c2430; --acento: #2266aa; --ok: #2e7d4f; --aviso: #b26a00; --rojo: #b3261e; --suave: #5b6675; font-size: 14px; }
+#transitoWeb input:disabled, #transitoWeb textarea:disabled, #transitoWeb select:disabled { opacity: .75; }
+#transitoWeb input:not(:disabled), #transitoWeb select:not(:disabled), #transitoWeb textarea:not(:disabled) { opacity: 1; }
+#transitoWeb .ficha-estrecha { max-width: 420px; }
+#transitoWeb .nombre-tutor { font-size: 12.5px; font-weight: 600; }
+#transitoWeb .campo-ancho { width: 100%; padding: 6px; }
+#transitoWeb .aviso { margin: 4px 0; }

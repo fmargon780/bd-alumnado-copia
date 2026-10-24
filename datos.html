@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Datos y configuración</title>
+<title>Configuración</title>
 <link rel="stylesheet" href="estilos.css">
 <link rel="stylesheet" href="datos-web.css">
 <link rel="stylesheet" href="datos-base.css">
 </head>
 <body data-pagina="datos.html">
 <header>
-  <h1>Datos y configuración</h1>
+  <h1>Configuración</h1>
   <div class="datos" id="datos">&nbsp;</div>
 </header>
 <nav id="menu"></nav>
@@ -28,6 +28,7 @@
       <span class="suave"><span id="soloMirar">Solo para mirar.</span> Para cambiar algo: <a class="cambiar-app" id="enlaceApp" target="_blank" rel="noopener">Cambiar en la app de hoy</a></span>
     </div>
     <div class="dt-pasos" id="pasos"></div>
+    <p class="oculto" id="botonCentroDatos"><button type="button" class="destacado" id="abrirCentroDatos">Abrir el Centro de datos</button></p>
     <div id="mensajes"></div>
 
     <div id="tab-datos">
@@ -161,6 +162,7 @@
 <p class="pie" id="version"></p>
 <script src="version.js"></script>
 <script src="commit.js"></script>
+<script src="hoy-base.js"></script>
 <script src="carpeta.js"></script>
 <script src="escritura.js"></script>
 <script src="medidas.js"></script>
@@ -184,6 +186,8 @@
 <script src="datos-resolucion.js"></script>
 <script src="datos-objetivos.js"></script>
 <script src="datos.js"></script>
+<script src="buscar.js"></script>
+<script src="menu-buscador.js"></script>
 <script src="menu.js"></script>
 <script src="actualizar-copia.js"></script>
 </body>

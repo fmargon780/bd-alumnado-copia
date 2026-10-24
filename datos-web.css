@@ -15,3 +15,6 @@ button[data-escribe], a[data-escribe] { display: none; }
 a.cambiar-app { font-size: 12px; padding: 1px 8px; border: 1px solid #2266aa; border-radius: 6px; color: #2266aa; text-decoration: none; background: #fff; white-space: nowrap; }
 /* Instrucción 139, parte 2: con la escritura activada los campos de los formularios que se guardan se ven normales. */
 #datosYConfiguracion input:not(:disabled), #datosYConfiguracion select:not(:disabled) { opacity: 1; }
+/* Instrucción 149: el botón «Abrir el Centro de datos» del paso «Datos de Séneca» de una tarea (en la app de hoy está en la cabecera del paso). */
+#botonCentroDatos { margin: 0 0 10px; }
+#botonCentroDatos button.destacado { font-size: 13px; padding: 6px 14px; border-radius: 6px; border: 1px solid #2266aa; background: #2266aa; color: #fff; cursor: pointer; }

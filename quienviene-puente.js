@@ -68,7 +68,10 @@
   var VISTAS = { admision: { resolucion: 'resolucion', admitidos: 'solicitudes', esperados: 'esperados' }, matricula: { cursos: 'cursos', llamar: 'aLlamar', sobres: 'sobres', casos: 'casos' }, espera: { lista: 'listaEspera' } };
   window.irAPaso_ = function (tarea, paso) {
     var v = VISTAS[tarea] && VISTAS[tarea][paso];
-    if (v && puente.irAVista) puente.irAVista(v); else soloEnLaApp();
+    /* Instrucción 149: un paso de esta pantalla se enseña aquí mismo (y el menú marca la tarea y el paso y cambia la dirección); cualquier otro, en la pantalla que lo enseña. */
+    if (v && puente.irAVista) { puente.irAVista(v); if (window.MenuWeb) window.MenuWeb.irA(tarea, paso); }
+    else if (window.HoyBase && window.HoyBase.direccionIrAPaso(tarea, paso)) location.href = window.HoyBase.direccionIrAPaso(tarea, paso);
+    else soloEnLaApp();
   };
 
   /* Una ficha: la de la web nueva necesita saber la unidad, y de los alumnos de otro curso no se sabe: no abre nada. */

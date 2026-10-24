@@ -6,7 +6,13 @@
   var C = window.CarpetaWeb, E = window.EntrarWeb, P = window.DocumentosPuente, X = window.EscrituraWeb;
   var $ = function (id) { return document.getElementById(id); };
   var T0 = performance.now(), MEDIDO = false;
-  var IND = null, PASO = 'documentos';
+  /* Instrucción 149: dentro de una tarea, el paso lo dice la dirección (`?tarea=inicio&paso=enviar`) y la fila de pasos la pinta el menú; sin tarea, quedan los tres pasos de siempre. */
+  var ENTRADA_PASO = (function () {
+    var q = new URLSearchParams(location.search), tarea = q.get('tarea'), paso = q.get('paso');
+    var p = (tarea && window.HoyBase) ? window.HoyBase.pasosDeTarea({}, tarea).filter(function (x) { return x.clave === paso && x.tab === 'documentos'; })[0] : null;
+    return p ? p.clave : '';
+  })();
+  var IND = null, PASO = ENTRADA_PASO || 'documentos';
   var PASOS = [['documentos', 'Documentos'], ['listados', 'Listados por grupo'], ['enviar', 'Enviar a los tutores']];
 
   $('version').textContent = window.VERSION_WEB + ' · ' + (window.COMMIT_WEB || 'sin-marca') + (E.DESDE_DISCO ? ' · copia sin internet' : '');
@@ -23,6 +29,7 @@
   function pintarPasos() {
     var caja = $('pasos');
     caja.textContent = '';
+    caja.hidden = !!ENTRADA_PASO;   // dentro de una tarea no se ven (los pasos los pinta el menú), pero se siguen poniendo al día
     PASOS.forEach(function (p) {
       var b = document.createElement('button');
       b.type = 'button'; b.textContent = p[1]; b.setAttribute('data-paso', p[0]);
@@ -61,7 +68,20 @@
     if (window.DOCUMENTOS_) window.pintarDocumentos_(); else window.cargarDocumentos();
     medir();
   }
-  window.irAPaso_ = function (tarea, paso) { if (PASOS.some(function (p) { return p[0] === paso; })) irA(paso); else P.soloEnLaApp(); };
+  window.irAPaso_ = function (tarea, paso) {
+    var d = window.HoyBase.direccionIrAPaso(tarea, paso);
+    if (PASOS.some(function (p) { return p[0] === paso; }) && (tarea === 'inicio' || tarea === 'agrupamiento')) { irA(paso); if (window.MenuWeb) window.MenuWeb.irA(tarea, paso); }
+    else if (d) location.href = d;
+    else P.soloEnLaApp();
+  };
+
+
+  /* El menú (menu.js) deja pasar sin recargar los pasos que esta pantalla sabe enseñar. */
+  window.MenuPasoEnSitio = function (tarea, paso) {
+    if (!window.HoyBase.pasosDeTarea({}, tarea).some(function (x) { return x.clave === paso && x.tab === 'documentos'; })) return false;
+    irA(paso);
+    return true;
+  };
 
   async function ver(curso) {
     window.CURSO_VISTO = curso;

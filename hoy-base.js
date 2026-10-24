@@ -235,21 +235,21 @@
   /* ---------------------------------------------------------------- los pasos de cada tarea y su estado (JsTareasPasos.html) */
   function noHaceFalta(texto) { return { s: 'nohace', texto: texto }; }
   function enMemoria(x) { return x !== undefined && x !== null; }
-  function pasoDatos(tarea) { return { clave: 'datos', etiqueta: 'Datos de Séneca', estado: function (c) { return estadoDatosDeTarea(tarea, c); } }; }
+  function pasoDatos(tarea) { return { clave: 'datos', etiqueta: 'Datos de Séneca', tab: 'descargas', datosDe: tarea, estado: function (c) { return estadoDatosDeTarea(tarea, c); } }; }
 
   function pasos(m) {
     function otrosSinRevisar(d) { return (d.esperados || []).filter(function (e) { return e[3] === 1; }).length; }
     return {
       admision: [
         pasoDatos('admision'),
-        { clave: 'resolucion', etiqueta: 'Resolución de admisión', estado: function (c) {
+        { clave: 'resolucion', etiqueta: 'Resolución de admisión', tab: 'quienviene', vista: 'resolucion', estado: function (c) {
           var d = c.qv; if (!d) return { s: 'falta', texto: 'Trayendo la admisión…' };
           if (!(d.solicitudes || []).length) return noHaceFalta('Aún no hay solicitudes');
           if (!(d.resolucion && d.resolucion.leida)) return { s: 'falta', texto: 'Falta el PDF de la resolución' };
           var av = d.resolucion.avisos || 0;
           return av ? { s: 'falta', n: av, texto: 'No cuadra con el PDF' } : { s: 'hecho', texto: 'Cuadra con el PDF' };
         } },
-        { clave: 'admitidos', etiqueta: 'Admitidos y no admitidos por curso', estado: function (c) {
+        { clave: 'admitidos', etiqueta: 'Admitidos y no admitidos por curso', tab: 'quienviene', vista: 'solicitudes', estado: function (c) {
           var d = c.qv; if (!d) return { s: 'falta' };
           if (!(d.solicitudes || []).length) return noHaceFalta('Aún no hay solicitudes');
           var sin = (d.resolucion && d.resolucion.leida) ? (d.resolucion.sinEmparejar || 0) : 0;
@@ -257,7 +257,7 @@
           var adm = d.solicitudes.filter(function (s) { return s[1] === 'esperado_pendiente' || s[1] === 'esperado_matriculado'; }).length;
           return { s: 'hecho', n: adm, texto: adm + ' admitidos' };
         } },
-        { clave: 'esperados', etiqueta: 'A quién se espera en cada curso', estado: function (c) {
+        { clave: 'esperados', etiqueta: 'A quién se espera en cada curso', tab: 'quienviene', vista: 'esperados', estado: function (c) {
           var d = c.qv; if (!d) return { s: 'falta' };
           if (!d.esPreparacion) return noHaceFalta('El curso no está en preparación');
           return (d.esperados || []).length ? { s: 'hecho', n: d.esperados.length, texto: d.esperados.length + ' esperados' } : { s: 'falta', texto: 'Aún no hay esperados' };
@@ -265,17 +265,17 @@
       ],
       transito: [
         pasoDatos('transito'),
-        { clave: 'tutores', etiqueta: 'Tutores de 6º y plazo', estado: function (c) {
+        { clave: 'tutores', etiqueta: 'Tutores de 6º y plazo', tab: 'transito', vista: 'tutores', estado: function (c) {
           if (!enMemoria(c.tutores)) return noHaceFalta('El tránsito se sigue en el curso en preparación');
           return c.tutores ? { s: 'hecho', n: c.tutores, texto: c.tutores + ' tutores' } : { s: 'falta', texto: 'Aún no hay tutores dados de alta' };
         } },
-        { clave: 'seguimiento', etiqueta: 'Seguimiento de las fichas', estado: function (c) {
+        { clave: 'seguimiento', etiqueta: 'Seguimiento de las fichas', tab: 'transito', vista: 'seguimiento', estado: function (c) {
           var cols = c.seguimiento && c.seguimiento.porColegio;
           if (!cols) return noHaceFalta('Sin seguimiento todavía');
           var esp = 0, env = 0; cols.forEach(function (x) { esp += x.totalEsperados; env += x.enviadas; });
           return !esp ? noHaceFalta('Aún no hay alumnado esperado') : (env >= esp ? { s: 'hecho', texto: env + ' de ' + esp + ' enviadas' } : { s: 'falta', n: esp - env, texto: env + ' de ' + esp + ' enviadas' });
         } },
-        { clave: 'bandeja', etiqueta: 'Revisar y aprobar', estado: function (c) {
+        { clave: 'bandeja', etiqueta: 'Revisar y aprobar', tab: 'transito', vista: 'bandeja', estado: function (c) {
           if (!enMemoria(c.bandeja)) return noHaceFalta('Nada que revisar todavía');
           var n = c.bandeja || 0;
           return n ? { s: 'falta', n: n, texto: n + ' por revisar' } : { s: 'hecho', texto: 'Nada por revisar' };
@@ -283,7 +283,7 @@
       ],
       matricula: [
         pasoDatos('matricula'),
-        { clave: 'cursos', etiqueta: 'Cómo va cada curso', estado: function (c) {
+        { clave: 'cursos', etiqueta: 'Cómo va cada curso', tab: 'quienviene', vista: 'cursos', estado: function (c) {
           var d = c.qv; if (!d) return { s: 'falta' };
           if (!d.esPreparacion) return noHaceFalta('El curso no está en preparación');
           var f = fechaDeHito(m, 'certificacionJulio', c.curso), conObjetivo = (d.panel || []).some(function (p) { return p.objetivo !== null && p.objetivo !== undefined; });
@@ -294,19 +294,19 @@
           if (rojos.length) return { s: 'falta', n: rojos.length, texto: rojos.length + (rojos.length === 1 ? ' curso no llega' : ' cursos no llegan') };
           return faltanN ? { s: 'falta', n: faltanN, texto: faltanN + ' cursos sin mínimo' + cuando } : { s: 'hecho', texto: 'Mínimo cumplido' + cuando };
         } },
-        { clave: 'llamar', etiqueta: 'A quién llamar', estado: function (c) {
+        { clave: 'llamar', etiqueta: 'A quién llamar', tab: 'quienviene', vista: 'aLlamar', estado: function (c) {
           var d = c.qv; if (!d || !d.esPreparacion) return noHaceFalta('Sin matrícula en marcha');
           var n = (d.esperados || []).filter(function (e) { return !e[2] && e[1] === 'Pendiente'; }).length;
           return n ? { s: 'falta', n: n, texto: n + ' familias' } : { s: 'hecho', texto: 'Nadie por llamar' };
         } },
-        { clave: 'sobres', etiqueta: 'Sobres', estado: function (c) {
+        { clave: 'sobres', etiqueta: 'Sobres', tab: 'quienviene', vista: 'sobres', estado: function (c) {
           var d = c.qv; if (!d || !d.esPreparacion) return noHaceFalta('Sin matrícula en marcha');
           if (!d.sobresLeidos) return { s: 'falta', texto: 'Falta el fichero de los sobres' };
           var n = 0; (d.panel || []).forEach(function (p) { n += ((p.sobres && p.sobres.sinRevisar) || 0) + ((p.sobres && p.sobres.conProblema) || 0); });
           n += d.sobresSinEmparejar || 0;
           return n ? { s: 'falta', n: n, texto: n + ' por mirar' } : { s: 'hecho' };
         } },
-        { clave: 'casos', etiqueta: 'Casos a mirar', estado: function (c) {
+        { clave: 'casos', etiqueta: 'Casos a mirar', tab: 'quienviene', vista: 'casos', estado: function (c) {
           var d = c.qv; if (!d || !d.esPreparacion) return noHaceFalta('Sin matrícula en marcha');
           var n = (d.noEsperados || 0) + (d.provisionalesSinEmparejar || 0) + otrosSinRevisar(d);
           return n ? { s: 'falta', n: n, texto: n + ' casos' } : { s: 'hecho', texto: 'Ninguno' };
@@ -314,8 +314,8 @@
       ],
       agrupamiento: [
         pasoDatos('agrupamiento'),
-        { clave: 'oferta', etiqueta: 'Qué se ofrece y qué eligió cada familia', estado: function (c) { return (c.qv && c.qv.esPreparacion && c.qv.planificacion && !c.qv.planificacion.leida) ? { s: 'falta', texto: 'Falta lo que eligió cada familia' } : { s: 'hecho' }; } },
-        { clave: 'mesa', etiqueta: 'La mesa', estado: function (c) {
+        { clave: 'oferta', etiqueta: 'Qué se ofrece y qué eligió cada familia', tab: 'revision', vista: 'oferta', estado: function (c) { return (c.qv && c.qv.esPreparacion && c.qv.planificacion && !c.qv.planificacion.leida) ? { s: 'falta', texto: 'Falta lo que eligió cada familia' } : { s: 'hecho' }; } },
+        { clave: 'mesa', etiqueta: 'La mesa', tab: 'mesa', estado: function (c) {
           var mm = c.mesa || []; if (!mm.length) return { s: 'falta', texto: 'Aún sin modelo' };
           var bn = mesaBajasNuevos(mm);
           if (bn.baj + bn.nue + bn.cam) return { s: 'falta', n: bn.baj + bn.nue + bn.cam, texto: bn.texto };
@@ -324,14 +324,14 @@
           if (def === mm.length) return { s: 'hecho', texto: 'Todos los cursos, definitivos' };
           return { s: 'falta', n: sin || null, texto: empezados ? sin + ' sin colocar' : 'Sin empezar' };
         } },
-        { clave: 'comprobar', etiqueta: 'Comprobar con Séneca', estado: function (c) { var n = (c.contadores.matricula || 0) + (c.contadores.cuadre || 0); return n ? { s: 'falta', n: n, texto: n + ' por mirar' } : { s: 'hecho' }; } },
-        { clave: 'cambios', etiqueta: 'Cambios para Séneca', estado: function (c) { var n = c.contadores.cambios || 0; return n ? { s: 'falta', n: n, texto: n + ' por pasar' } : { s: 'hecho', texto: 'Ninguno por pasar' }; } },
-        { clave: 'listados', etiqueta: 'Listados por grupo', estado: function (c) { return estadoDocumento(c, ['mesa']); } },
-        { clave: 'excel', etiqueta: 'Excel de Jefatura', si: function () { return !m.centro || m.centro.usaExcelJefatura !== false; }, estado: function () { return { s: 'hecho', texto: 'Mientras el centro lo use' }; } }
+        { clave: 'comprobar', etiqueta: 'Comprobar con Séneca', tab: 'revision', vista: 'matricula', estado: function (c) { var n = (c.contadores.matricula || 0) + (c.contadores.cuadre || 0); return n ? { s: 'falta', n: n, texto: n + ' por mirar' } : { s: 'hecho' }; } },
+        { clave: 'cambios', etiqueta: 'Cambios para Séneca', tab: 'revision', vista: 'cambios', estado: function (c) { var n = c.contadores.cambios || 0; return n ? { s: 'falta', n: n, texto: n + ' por pasar' } : { s: 'hecho', texto: 'Ninguno por pasar' }; } },
+        { clave: 'listados', etiqueta: 'Listados por grupo', tab: 'documentos', estado: function (c) { return estadoDocumento(c, ['mesa']); } },
+        { clave: 'excel', etiqueta: 'Excel de Jefatura', tab: 'revision', vista: 'excel', si: function () { return !m.centro || m.centro.usaExcelJefatura !== false; }, estado: function () { return { s: 'hecho', texto: 'Mientras el centro lo use' }; } }
       ],
       espera: [
         pasoDatos('espera'),
-        { clave: 'lista', etiqueta: 'La lista y las llamadas', estado: function (c) {
+        { clave: 'lista', etiqueta: 'La lista y las llamadas', tab: 'quienviene', vista: 'listaEspera', estado: function (c) {
           var d = c.qv; if (!d) return { s: 'falta' };
           var l = d.listaEspera || []; if (!l.length) return noHaceFalta('La lista está vacía');
           var sin = l.filter(function (s) { return !(s[1] || s[3]); }).length;   // s = [grado, llamada, interesada, docRecibida]
@@ -340,9 +340,9 @@
       ],
       inicio: [
         pasoDatos('inicio'),
-        { clave: 'avisos', etiqueta: 'Avisos del alumnado por revisar', estado: function (c) { var n = c.contadores.avisos || 0; return n ? { s: 'falta', n: n, texto: n + ' por revisar' } : { s: 'hecho', texto: 'Ninguno por revisar' }; } },
-        { clave: 'documentos', etiqueta: 'Documentos', estado: function (c) { return estadoDocumento(c, ['informesEso', 'informesBac', 'pendientes', 'pendientesBac', 'enterado', 'seguimiento']); } },
-        { clave: 'enviar', etiqueta: 'Enviar a los tutores', estado: function (c) {
+        { clave: 'avisos', etiqueta: 'Avisos del alumnado por revisar', tab: 'revision', vista: 'avisos', estado: function (c) { var n = c.contadores.avisos || 0; return n ? { s: 'falta', n: n, texto: n + ' por revisar' } : { s: 'hecho', texto: 'Ninguno por revisar' }; } },
+        { clave: 'documentos', etiqueta: 'Documentos', tab: 'documentos', estado: function (c) { return estadoDocumento(c, ['informesEso', 'informesBac', 'pendientes', 'pendientesBac', 'enterado', 'seguimiento']); } },
+        { clave: 'enviar', etiqueta: 'Enviar a los tutores', tab: 'documentos', estado: function (c) {
           if (!c.doc) return { s: 'falta' };
           var t = c.doc.tutores || []; if (!t.length) return { s: 'falta', texto: 'Faltan los tutores' };
           var sin = t.filter(function (x) { return !x[0] || x[1]; }).length;   // x = [enviado, pendienteDeReenvio]
@@ -350,6 +350,34 @@
         } }
       ]
     };
+  }
+
+  /* Instrucción 149: los pasos de una tarea sin su estado (etiqueta, tab y vista de la app de hoy), los que ve la fila de pasos del menú; el estado se pone encima con `estadoPasosDe`. */
+  function pasosDeTarea(m, clave) {
+    return (pasos(m)[clave] || []).filter(function (p) { return !p.si || p.si(); }).map(function (p) { return { clave: p.clave, etiqueta: p.etiqueta, tab: p.tab, vista: p.vista || '', datosDe: p.datosDe || '' }; });
+  }
+
+  /* Instrucción 149: la dirección de cada paso en la web nueva. Cada paso lo enseña la pantalla de su `tab` (la de la app de hoy), y la dirección lleva tarea y paso para que recargar o guardar el enlace abra el mismo sitio. */
+  var PAGINA_DE_TAB = { descargas: 'datos.html', quienviene: 'quienviene.html', transito: 'transito.html', revision: 'revision.html', mesa: 'mesa.html', documentos: 'documentos.html' };
+  function direccionPaso(tarea, paso) {
+    var p = (pasos({})[tarea] || []).filter(function (x) { return x.clave === paso; })[0];
+    return p ? PAGINA_DE_TAB[p.tab] + '?tarea=' + tarea + '&paso=' + paso : '';
+  }
+  /* Lo que hace `irAPaso_(tarea, paso)` de la app de hoy: «datos» son los apartados de Configuración, «listados» y «estadisticas» sus pantallas; el resto, una tarea y su paso. */
+  function direccionIrAPaso(tarea, paso) {
+    if (tarea === 'datos') return 'datos.html?paso=' + paso;
+    if (tarea === 'listados') return 'listado.html';
+    if (tarea === 'estadisticas') return 'estadisticas.html';
+    return direccionPaso(tarea, paso);
+  }
+  /* Pulsar una tarea abre `tarea.html`, que lleva al paso que toca (o al último que se vio). */
+  function direccionTarea(tarea) { return 'tarea.html?tarea=' + tarea; }
+
+  /* Las tareas que el menú resalta (instrucción 149): todas las que están en marcha; si no hay ninguna en marcha, la que toca; si tampoco hay, ninguna. Solo necesita el calendario de cada curso. */
+  function tareasResaltadas(m, hoy) {
+    var h = tareasDeHoy(m, hoy);
+    if (h.enMarcha.length) return h.enMarcha.map(function (e) { return e.tarea.clave; });
+    return h.toca ? [h.toca.tarea.clave] : [];
   }
 
   function datosDeTarea(m, curso, hoy) {
@@ -384,18 +412,18 @@
         if (tieneCaja && !rojos.length) return;
         var texto = rojos.length ? unirCursos(rojos.map(nombreGrado)) + (rojos.length === 1 ? ' no llega' : ' no llegan') + ' al mínimo de matrícula.'
           : e.tarea.nombre + ' › ' + r.paso.etiqueta + ': ' + (r.texto || r.n) + '.';
-        items.push({ g: rojos.length ? 1 : (r.paso.clave === 'datos' ? 3 : 2), texto: texto });
+        items.push({ g: rojos.length ? 1 : (r.paso.clave === 'datos' ? 3 : 2), texto: texto, ir: direccionPaso(clave, r.paso.clave) });
       });
     });
-    if (bn.texto && !conCaja.some(function (e) { return e.tarea.clave === 'agrupamiento'; })) items.push({ g: 2, texto: 'La mesa: ' + bn.texto + '.' });
+    if (bn.texto && !conCaja.some(function (e) { return e.tarea.clave === 'agrupamiento'; })) items.push({ g: 2, texto: 'La mesa: ' + bn.texto + '.', ir: direccionPaso('agrupamiento', 'mesa') });
     var portada = lect(m, m.cursoVisto).portada;
-    if (portada && portada.resumen && portada.resumen.aMedias) items.push({ g: 1, texto: 'La última actualización de datos quedó a medias.' });
-    ((portada && portada.fijas) || []).filter(function (f) { return f.estado === 'no'; }).forEach(function (f) { items.push({ g: 1, texto: f.frase }); });
+    if (portada && portada.resumen && portada.resumen.aMedias) items.push({ g: 1, texto: 'La última actualización de datos quedó a medias.', ir: 'datos.html?paso=estado' });
+    ((portada && portada.fijas) || []).filter(function (f) { return f.estado === 'no'; }).forEach(function (f) { items.push({ g: 1, texto: f.frase, ir: 'datos.html?paso=estado' }); });
     var cm = cursoDeTarea(m, 'matricula', h.hoy);
     var estM = h.todas.filter(function (e) { return e.tarea.clave === 'matricula'; })[0];
     if (estM && estM.estado !== 'cerrada' && estM.estado !== 'sinFecha') {
       [['certificacionJulio', 'de julio'], ['certificacionSeptiembre', 'de septiembre']].forEach(function (x) {
-        if (!fechaDeHito(m, x[0], cm)) items.push({ g: 3, texto: 'La certificación de matrícula ' + x[1] + ' no tiene fecha (sin fecha).' });
+        if (!fechaDeHito(m, x[0], cm)) items.push({ g: 3, texto: 'La certificación de matrícula ' + x[1] + ' no tiene fecha (sin fecha).', ir: 'datos.html?paso=fechas' });
       });
     }
     return ordenaEstable(items, function (a, b) { return a.g - b.g; }).slice(0, 5);
@@ -439,7 +467,7 @@
     return lineas.slice(0, CAMBIOS_HOY_MAX);
   }
 
-  var api = { TAREAS: TAREAS, lect: lect, tareasDeHoy: tareasDeHoy, estadoTarea: estadoTarea, estadoPasosDe: estadoPasosDe, estadoObjetivo: estadoObjetivo, cifrasVivasPanel: cifrasVivasPanel, cursosEnRojo: cursosEnRojo,
+  var api = { TAREAS: TAREAS, direccionPaso: direccionPaso, direccionTarea: direccionTarea, direccionIrAPaso: direccionIrAPaso, PAGINA_DE_TAB: PAGINA_DE_TAB, pasosDeTarea: pasosDeTarea, tareasResaltadas: tareasResaltadas, lect: lect, tareasDeHoy: tareasDeHoy, estadoTarea: estadoTarea, estadoPasosDe: estadoPasosDe, estadoObjetivo: estadoObjetivo, cifrasVivasPanel: cifrasVivasPanel, cursosEnRojo: cursosEnRojo,
     mesaBajasNuevos: mesaBajasNuevos, fechaDeHito: fechaDeHito, calendarioDe: calendarioDe, cursoDeTarea: cursoDeTarea, atencionHoy: atencionHoy, proximasFechasHoy: proximasFechasHoy, porMirarVisibles: porMirarVisibles,
     lineasUltimosCambios: lineasUltimosCambios, hoyIso: hoyIso, fechaHoyLarga: fechaHoyLarga, haceCuanto: haceCuanto, diasEntre: diasEntre, plural: plural, fechaCorta: fechaCorta, fechaCortaAbrev: fechaCortaAbrev,
     nombreGrado: nombreGrado };

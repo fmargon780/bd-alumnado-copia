@@ -26,9 +26,18 @@
   new MutationObserver(function () { P.preparar($('tab-quienviene')); }).observe($('tab-quienviene'), { childList: true, subtree: true });
   P.atender($('tab-quienviene'));
 
+  /* Instrucción 149: dentro de una tarea, los pasos los pinta el menú (segunda fila, menu.js) y la dirección dice cuál (`?tarea=matricula&paso=llamar`); la fila de pasos de esta pantalla solo queda sin tarea. */
+  function vistaDeLaDireccion() {
+    var q = new URLSearchParams(location.search), tarea = q.get('tarea'), paso = q.get('paso');
+    var p = (tarea && window.HoyBase) ? window.HoyBase.pasosDeTarea({}, tarea).filter(function (x) { return x.clave === paso && x.tab === 'quienviene'; })[0] : null;
+    return p ? p.vista : '';
+  }
+  var ENTRADA_VISTA = vistaDeLaDireccion();
+
   function pintarPasos() {
     var caja = $('pasos');
     caja.textContent = '';
+    if (ENTRADA_VISTA) { caja.hidden = true; return; }
     GRUPOS.forEach(function (g) {
       var grupo = document.createElement('div');
       grupo.className = 'grupo';
@@ -55,6 +64,13 @@
   }
 
   P.irAVista = irA;
+  /* El menú (menu.js) deja pasar sin recargar los pasos que esta pantalla sabe enseñar. */
+  window.MenuPasoEnSitio = function (tarea, paso) {
+    var p = window.HoyBase.pasosDeTarea({}, tarea).filter(function (x) { return x.clave === paso && x.tab === 'quienviene'; })[0];
+    if (!p || !window.QUIENVIENE_DATOS) return false;
+    irA(p.vista);
+    return true;
+  };
 
   function horaDe(curso) { var f = P.ficheros()[curso]; return (f && f.hora) || IND.hora; }
 
@@ -85,7 +101,7 @@
     if (!cursos.length) throw new Error('«Quién viene» todavía no está preparado.');
     var prep = (IND.abiertos || []).filter(function (c) { return c.estado === 'En preparación' && P.ficheros()[c.curso]; })[0];
     var elegido = prep ? prep.curso : (cursos.indexOf(IND.enMarcha) !== -1 ? IND.enMarcha : cursos[0]);
-    window.VISTA_QUIENVIENE = prep ? 'resolucion' : 'listaEspera';
+    window.VISTA_QUIENVIENE = ENTRADA_VISTA || (prep ? 'resolucion' : 'listaEspera');
     if (IND.urlApp) $('enlaceApp').href = IND.urlApp;
     var sel = $('selCurso');
     sel.textContent = '';

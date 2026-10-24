@@ -132,12 +132,19 @@
     return h('a', a, hijos);
   }
 
+  /* Instrucción 149: los pasos, las tareas y las líneas de atención llevan a la web nueva (tarea y paso en la dirección); solo lo que aún no está aquí sigue yendo a la app de hoy. */
+  function enlaceAqui(clase, titulo, hijos, direccion) {
+    var a = { class: clase, href: direccion };
+    if (titulo) a.title = titulo;
+    return h('a', a, hijos);
+  }
+
   function chipPaso(s) { var e = ESTADOS_PASO[s]; return h('span', { class: 'estado-paso e-' + s }, [h('i', { 'aria-hidden': 'true' }, e[0]), ' ' + e[1]]); }
 
   function pasosHoy(m, t, curso, hoy, extra) {
     return h('div', { class: 'pasos-hoy' }, B.estadoPasosDe(m, t.clave, curso, hoy).map(function (r) {
-      return enlace('paso' + (r.s === 'toca' ? ' fuerte' : '') + ' e-' + r.s, r.texto,
-        [h('small', {}, 'Paso ' + (r.i + 1)), h('b', {}, r.paso.etiqueta + (r.n ? ' · ' + r.n : '')), h('em', {}, chipPaso(r.s))], m);
+      return enlaceAqui('paso' + (r.s === 'toca' ? ' fuerte' : '') + ' e-' + r.s, r.texto,
+        [h('small', {}, 'Paso ' + (r.i + 1)), h('b', {}, r.paso.etiqueta + (r.n ? ' · ' + r.n : '')), h('em', {}, chipPaso(r.s))], B.direccionPaso(t.clave, r.paso.clave));
     }).concat(extra || []));
   }
 
@@ -160,7 +167,7 @@
       T[t.clave] ? T[t.clave](e.curso) : null, pasosHoy(m, t, e.curso, hoy, grande ? certificacionPaso(m, e, hoy) : null)];
   }
 
-  function lineaTarea(m, e) { return enlace('linea-tarea', '', [h('b', {}, e.tarea.nombre), ' ', h('span', {}, e.texto)], m); }
+  function lineaTarea(m, e) { return enlaceAqui('linea-tarea', '', [h('b', {}, e.tarea.nombre), ' ', h('span', {}, e.texto)], B.direccionTarea(e.tarea.clave)); }
 
   /* Todo «Hoy» ya dibujado: { toca, tambien: {oculto, nodos}, atencion: {oculto, nodos}, fechas, porMirar: {oculto, n, nodos}, cambios: {oculto, nodos}, pie, hoy } (cada `nodos` es una lista de nodos). */
   function pintar(m, opciones) {
@@ -175,12 +182,13 @@
     } else {
       var prox = hh.proxima ? 'La próxima: ' + hh.proxima.tarea.nombre + ', el ' + B.fechaCorta(hh.proxima.desde) + ' (' + (hh.proxima.diasHasta === 1 ? 'mañana' : 'dentro de ' + B.plural(hh.proxima.diasHasta)) + ').' : 'No hay más fechas escritas: se escriben en «Datos y configuración».';
       s.toca = [h('div', { class: 'etq' }, 'Hoy'), h('h2', {}, 'Hoy no hay ninguna tarea con fecha'), h('div', { class: 'sub' }, prox),
-        hh.proxima ? h('div', { class: 'pasos-hoy' }, enlace('paso fuerte', '', [h('small', {}, 'Siguiente'), h('b', {}, hh.proxima.tarea.nombre)], m)) : null];
+        hh.proxima ? h('div', { class: 'pasos-hoy' }, enlaceAqui('paso fuerte', '', [h('small', {}, 'Siguiente'), h('b', {}, hh.proxima.tarea.nombre)], B.direccionTarea(hh.proxima.tarea.clave))) : null];
       s.tambien = { oculto: true, nodos: [] };
     }
     var items = B.atencionHoy(m, hh);
     s.atencion = { oculto: !items.length, nodos: items.length ? [h('div', { class: 'etq rojo' }, 'Necesita tu atención')].concat(items.map(function (i) {
-      return enlace('ojo' + (i.g > 1 ? ' am' : ''), '', [h('i', { 'aria-hidden': 'true' }, i.g > 1 ? '…' : '⚠'), ' ' + i.texto], m);
+      var hijos = [h('i', { 'aria-hidden': 'true' }, i.g > 1 ? '…' : '⚠'), ' ' + i.texto];
+      return i.ir ? enlaceAqui('ojo' + (i.g > 1 ? ' am' : ''), '', hijos, i.ir) : enlace('ojo' + (i.g > 1 ? ' am' : ''), '', hijos, m);
     })) : [] };
     var fechas = B.proximasFechasHoy(m, hh);
     s.fechas = [h('div', { class: 'etq gris' }, 'Próximas fechas'), fechas.length ? h('ul', { class: 'lista-hoy' }, fechas.map(function (f) {
@@ -196,7 +204,7 @@
     var cl = B.lineasUltimosCambios(m, ahora);
     s.cambios = { oculto: !cl.length, nodos: cl.length ? [h('div', { class: 'etq gris' }, 'Últimos cambios'), cl.map(function (l) {
       return h('div', { class: 'linea-cambio-hoy', title: l.x }, [h('b', {}, l.q), ' · ' + l.x + (l.veces > 1 ? ' (' + l.veces + ' veces)' : '') + ' · ', h('span', {}, B.haceCuanto(l.h, ahora))]);
-    }), enlace('ver-todos-cambios', '', 'Ver todos', m)] : [] };
+    }), enlaceAqui('ver-todos-cambios', '', 'Ver todos', 'datos.html?paso=cambios')] : [] };
     s.pie = 'Las fechas las escribe Jefatura una vez al año.';
     s.hoy = hh;
     return s;

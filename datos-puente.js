@@ -18,6 +18,7 @@
   window.CURSO_VISTO = '';
   window.PESTANA_ACTUAL = 'datos';
   window.MEMORIA_ = {};
+  window.SONDEO_ACTUALIZACION = null;   // instrucción 151: JsComun.html lo define en la app de hoy; «Cómo está la app» lo da por hecho
   window.MI_CORREO = '';
   window.ESTADO = { centro: { nombre: '' }, miPapel: { rol: 'admin', nombre: '', cargo: '', gestor: '' }, abiertos: [], cerrados: [], proximo: '' };
   window.escapaHtml = function (t) { return String(t === null || t === undefined ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };

@@ -51,3 +51,5 @@ nav.menu-pasos .est.e-toca { background: var(--ambar); color: #7a5600; }
 .estado-escritura { position: sticky; top: 0; z-index: 5; margin: 0 0 8px; padding: 6px 12px; border-radius: 6px; background: #e8f3ea; border: 1px solid #9cc6a5; color: #1d5a2c; font-size: 13px; }
 .estado-escritura.estado-error { background: #fdecea; border-color: #e0a09b; color: #8c1d18; }
 button.pequeno { font: inherit; font-size: 12.5px; padding: 2px 10px; border: 1px solid var(--linea); border-radius: 4px; background: #fff; cursor: pointer; }
+.franja-atraso { background: var(--ambar); border-bottom: 1px solid var(--ambar-linea); padding: 8px 16px; text-align: center; font-weight: 600; }
+.franja-atraso[hidden] { display: none; }

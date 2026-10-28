@@ -30,7 +30,7 @@ function recargarDocumentos_() {
 }
 
 /* Mientras haya una cola en marcha y esta pantalla esté a la vista: se pregunta cómo va; cuando termina una pieza se vuelve a pedir la tabla; y si pasan 90 segundos sin avanzar, se empuja. */
-function avanceDocumentos_(g) { return g.hechas + '/' + g.fallos + '/' + g.total; }
+function avanceDocumentos_(g) { return g.hechas + '/' + g.fallos + '/' + g.total + ((g.actual && g.actual.clave) === 'datos' ? '/datos' : ''); }   // instrucción 157: pasar de «tomando los datos» a la primera pieza también cuenta como avance
 
 function arrancarSondeoDocumentos_() {
   if (SONDEO_DOCUMENTOS) return;
@@ -83,7 +83,7 @@ function cajaGenerandoDocumentos_(g) {
     return '<div class="doc-caja marcha"><b>' + escapaHtml(g.fase) + '.</b> Sigue sola cuando termine.<small>Puedes cerrar la web o irte a otra pantalla: sigue sola.</small></div>';
   }
   var pieza = g.actual ? g.actual : null;
-  var que = g.paso === 'ordenar' ? '<b>Ordenando la carpeta de Drive…</b>' : (pieza && pieza.clave === 'preparar') ? '<b>Preparando los informes…</b>' :
+  var que = g.paso === 'ordenar' ? '<b>Ordenando la carpeta de Drive…</b>' : (pieza && pieza.clave === 'preparar') ? '<b>Preparando los informes…</b>' : (pieza && pieza.clave === 'datos') ? '<b>Tomando los datos nuevos del Centro de datos…</b> Puede tardar unos minutos.' :
     '<b>Generando: ' + (NOMBRE_PIEZA_DOCS_[pieza && pieza.clave] || 'documento') + ' ' + Math.min(g.hechas + 1, g.total) + ' de ' + g.total + '</b>' +
     (pieza && pieza.unidad ? ' (' + escapaHtml(pieza.unidad) + ')' : '') + '. Empezó a las ' + horaDocumentos_(g.inicio) + '.';
   return '<div class="doc-caja marcha">' + que + '<small>Puedes cerrar la web o irte a otra pantalla: sigue sola.</small>' +
@@ -125,12 +125,18 @@ function enlacesDocumento_(f) {
   return '';
 }
 
+/* Instrucción 157: «Volver a generar», en cada documento del curso en marcha; siempre encendido, también con el documento «Al día». */
+function botonVolverDocumento_(f) {
+  return '<button class="pequeno" title="Volver a generar" aria-label="Volver a generar: ' + escapaAtributo_(f.nombre) + '" onclick="documentosVolverAGenerar(\'' + escapaAtributo_(f.clave) + '\')">↻ Volver a generar</button>';
+}
+
 function filaDocumento_(f, g) {
   var e = etiquetaDocumento_(f, g);
   return '<tr><td class="doc">' + escapaHtml(f.nombre) +
     '</td>' +
     '<td class="est"><span class="doc-e ' + e.clase + '">' + escapaHtml(e.texto) + '</span></td>' +
-    '<td>' + detalleDocumento_(f) + '</td><td class="cuando">' + escapaHtml(fechaDocumentos_(f.ultima)) + '</td><td class="abrir">' + enlacesDocumento_(f) + '</td></tr>';
+    '<td>' + detalleDocumento_(f) + '</td><td class="cuando">' + escapaHtml(fechaDocumentos_(f.ultima)) + '</td><td class="abrir">' + enlacesDocumento_(f) + '</td>' +
+    (DOCUMENTOS_ && DOCUMENTOS_.soloLectura ? '' : '<td class="volver">' + botonVolverDocumento_(f) + '</td>') + '</tr>';
 }
 
 function pintarPasoDocumentos_(D, paso) {
@@ -141,8 +147,8 @@ function pintarPasoDocumentos_(D, paso) {
     '<div class="tarjeta">' + lineaPasoDocumentos_(D, paso, r) +
     /* Instrucción 87: «Texto de las hojas» sale una sola vez (antes, en tres filas); el editor se abre encima de la tabla (JsDocumentosPlantilla.html). */
     (paso === 'documentos' ? '<p class="doc-linea"><a href="javascript:void(0)" onclick="abrirTextoHojas_()">Texto de las hojas</a></p>' : '') +
-    '<table class="listado doc-tabla"><thead><tr><th>Documento</th><th>Estado</th><th>Qué falta o qué ha cambiado</th><th>Generados</th><th>Abrir</th></tr></thead><tbody>' +
-    (filas.map(function (f) { return filaDocumento_(f, D.generacion); }).join('') || '<tr><td colspan="5">Aquí no hay nada que generar en este centro.</td></tr>') + '</tbody></table></div>';
+    '<table class="listado doc-tabla"><thead><tr><th>Documento</th><th>Estado</th><th>Qué falta o qué ha cambiado</th><th>Generados</th><th>Abrir</th>' + (D.soloLectura ? '' : '<th></th>') + '</tr></thead><tbody>' +
+    (filas.map(function (f) { return filaDocumento_(f, D.generacion); }).join('') || '<tr><td colspan="' + (D.soloLectura ? 5 : 6) + '">Aquí no hay nada que generar en este centro.</td></tr>') + '</tbody></table></div>';
 }
 
 function pintarDocumentos_() {
@@ -179,6 +185,19 @@ function documentosGenerarPaso_(paso) {
   llamar('webDocumentosGenerarLoQueFalta', CURSO_VISTO, paso).then(function (r) {
     if (r && r.nada) avisar('No hay nada que generar: todo está al día.', 'aviso');
     else avisar('Generando en segundo plano. Puedes seguir usando la web.', 'aviso');
+    recargarDocumentos_();
+  }).catch(function (e) {
+    if (DOCUMENTOS_) { DOCUMENTOS_.pidiendo = ''; pintarDocumentos_(); }
+    avisar('No he podido lanzarlo. ' + mensajeDeError(e), 'error');
+  });
+}
+
+/* Instrucción 157: «Volver a generar» de un documento: el servidor toma primero los datos nuevos del Centro de datos y después rehace el documento entero. Sin preguntar «¿Seguro?». */
+function documentosVolverAGenerar(clave) {
+  if (DOCUMENTOS_) { DOCUMENTOS_.pidiendo = pasoDocumentosActual_(); pintarDocumentos_(); }
+  llamar('webDocumentosVolverAGenerar', CURSO_VISTO, clave).then(function (r) {
+    if (r && r.nada) avisar('No hay nada que rehacer en este documento.', 'aviso');
+    else avisar('Tomando los datos nuevos y rehaciendo el documento en segundo plano. Puedes seguir usando la web.', 'aviso');
     recargarDocumentos_();
   }).catch(function (e) {
     if (DOCUMENTOS_) { DOCUMENTOS_.pidiendo = ''; pintarDocumentos_(); }

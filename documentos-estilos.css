@@ -11,6 +11,7 @@
 .doc-tabla td.est { width: 15%; white-space: nowrap; }
 .doc-tabla td.cuando { width: 15%; color: var(--suave); white-space: nowrap; }
 .doc-tabla td.abrir { width: 9%; }
+.doc-tabla td.volver { width: 12%; white-space: nowrap; text-align: right; }
 .doc-e { display: inline-block; font-weight: 700; font-size: 12.5px; padding: 2px 9px; border-radius: 10px; }
 .doc-e.ok { background: #e4f4e9; color: var(--ok); }
 .doc-e.falta { background: #fdebd0; color: var(--aviso); }

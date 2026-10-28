@@ -11,9 +11,9 @@
   var PARADA_MS = 10 * 60 * 1000;   // igual que DOC_PARADA_MS_ de DocumentosEstado.gs
   var IND = null, CONTROL = null;
   /* Lo que se puede escribir desde aquí (nombre de la función de hoy -> cuántos argumentos lleva; el servidor lo vuelve a comprobar). */
-  var ESCRIBE = { webDocumentosGenerarLoQueFalta: 2, webDocumentosSeguir: 0, webDocumentosTutorGuardar: 5, webDocumentosEnviarPreguntar: 1, webDocumentosEnviar: 2, webPlantillaGuardar: 2, webRevisionMarcar: 4, webRevisionDeshacer: 3 };
+  var ESCRIBE = { webDocumentosGenerarLoQueFalta: 2, webDocumentosVolverAGenerar: 2, webDocumentosSeguir: 0, webDocumentosTutorGuardar: 5, webDocumentosEnviarPreguntar: 1, webDocumentosEnviar: 2, webPlantillaGuardar: 2, webRevisionMarcar: 4, webRevisionDeshacer: 3 };
   /* Las funciones de la pantalla que guardan algo por `llamar` (con la escritura activada están vivas) y las que solo mueven la pantalla. */
-  var UI_ESCRIBE = { guardarTextoHojas_: 1, documentosGuardarTutor: 1, avisoInformeMarcar_: 1, avisoInformeDeshacer_: 1 };
+  var UI_ESCRIBE = { guardarTextoHojas_: 1, documentosGuardarTutor: 1, documentosVolverAGenerar: 1, avisoInformeMarcar_: 1, avisoInformeDeshacer_: 1 };
   var LEER = { abrirTextoHojas_: 1, cerrarTextoHojas_: 1, cambiaTextoHojas_: 1, irAPaso_: 1 };
   var CAMPOS = '[id^="docNombre_"], [id^="docCorreo_"], [id^="docTrato_"]';   // los campos que se pueden guardar
 

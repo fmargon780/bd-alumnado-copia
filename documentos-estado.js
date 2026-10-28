@@ -39,8 +39,10 @@ function etiquetaDocumento_(f, g) {
   var r = f.resumen, pl = ((g && g.plan) || {})[f.clave];
   if (!r.total) return { clase: 'esp', texto: 'Sin unidades' };
   if (g && g.enCurso && g.parada && (r.generando || r.espera)) return { clase: 'mal', texto: 'Parado' };
+  if (f.tomandoDatos) return { clase: 'gen', texto: 'Tomando datos' };   // instrucción 157
   if (r.generando) return { clase: 'gen', texto: 'Generando' + (pl ? ' · ' + Math.min(pl[1] + 1, pl[0]) + ' de ' + pl[0] : '') };
   if (r.espera) return { clase: 'esp', texto: 'En espera' };
+  if (f.volverFallo) return { clase: 'mal', texto: 'No se pudo' };   // instrucción 157: no se pudieron tomar los datos nuevos
   if (r.fallo) return { clase: 'mal', texto: 'Falló ' + r.fallo + ' de ' + r.total };
   var faltan = r.falta + r.cambiado;
   if (faltan) return { clase: 'falta', texto: (faltan === 1 ? 'Falta 1' : 'Faltan ' + faltan) + ' de ' + r.total };
@@ -82,6 +84,7 @@ function listaUnidadesDocumentos_(nombres) {
 
 /* Qué falta o qué ha cambiado en un documento, con los nombres de las unidades. */
 function detalleDocumento_(f) {
+  if (f.tomandoDatos) return 'Tomando los datos nuevos del Centro de datos…';   // instrucción 157
   var frases = [], por = function (e) { return f.piezas.filter(function (p) { return p.estado === e; }); };
   var nombre = function (p) { return escapaHtml(p.unidad || f.nombre); };
   var sin = por('falta').filter(function (p) { return !p.razon; });
@@ -94,5 +97,6 @@ function detalleDocumento_(f) {
   var ahora = por('generando'), luego = por('espera');
   if (ahora.length) frases.push('Ahora: ' + listaUnidadesDocumentos_(ahora.map(nombre)) + '.');
   if (luego.length) frases.push('Va después: ' + listaUnidadesDocumentos_(luego.map(nombre)) + '.');
+  if (f.volverFallo && !ahora.length && !luego.length) frases.unshift(escapaHtml(f.volverFallo));   // instrucción 157
   return frases.join(' ') || '—';
 }

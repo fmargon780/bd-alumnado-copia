@@ -1,11 +1,11 @@
 /* Las cuentas hechas en este ordenador para una pantalla (instrucción 171: el listado, «Revisión», «Estadísticas» y la ficha). Sale primero lo de siempre (el fichero que deja Google); después la página, con la carpeta «CENTRO DE DATOS»
    (que se elige una vez y se recuerda), hace las cuentas con los ficheros de Séneca y cambia lo que se ve por lo calculado aquí, con la hora de Séneca arriba. Si algo falla, o no hay carpeta, o el navegador no puede, se queda lo de siempre
    y no molesta. No guarda nada de alumnos en el ordenador. Interruptor de una línea (`ACTIVADO`): con `true` se hacen las cuentas aquí para todos y `?navegador=0` las apaga en esa visita; con `false` solo se hacen con `?navegador=1`.
-   Instrucción 171, parte «quitar el parámetro»: el cambio está preparado y probado en los dos modos; se pone en `true` cuando Francisco haya medido cuánto tardan en su Chromebook. */
+   Instrucción 171, parte «quitar el parámetro»: el cambio está preparado y probado en los dos modos; está puesto en `true` (activado el 19-nov-2026 a petición de Francisco, sin la medida del Chromebook: la línea del pie dice los ms). */
 (function () {
   'use strict';
   var G = window, $ = function (id) { return document.getElementById(id); };
-  var ACTIVADO = false;   // ← el interruptor: `true` quita la necesidad del parámetro (ver arriba)
+  var ACTIVADO = true;   // ← el interruptor: `true` = para todos, sin parámetro (ver arriba); `false` = solo con ?navegador=1
   var PROGRAMA = ['centro-datos-web.js', 'cuentas-mundo.js', 'cuentas-programa.js', 'cuentas-web.js', 'cuentas-carga.js'];
   var CLAVE_AHORA_NO = 'bdAlumnado_cuentasAhoraNo';   // en la sesión de esta pestaña: «Ahora no» no vuelve a preguntar hasta cerrarla
 

@@ -33,13 +33,22 @@
     var ok = P.leer('construirAlumnado')() && P.leer('construirAlumnado')();
     var cuadre = ok ? P.leer('escribirCuadre_')() : null;   // el cuadre va pegado a la tabla: su dato solo existe en la memoria de esa vuelta
     /* El listado de la web nueva (ListadoWeb.gs): las mismas filas [clave, nombre, unidad, máscara] que deja Google en `_listado-<curso>.json`, hechas con la tabla de ahora. */
+    var quiere = entradas.quiere || ['listado'], curso = entradas.curso || '26-27';
     var listado = null;
-    if (ok) { try { listado = P.leer('listadoWebFilas_')(P.leer('alumnadoLigero_')(entradas.curso || '26-27').alumnos); } catch (e) { listado = null; } }
+    if (ok && quiere.indexOf('listado') !== -1) { try { listado = P.leer('listadoWebFilas_')(P.leer('alumnadoLigero_')(curso).alumnos); } catch (e) { listado = null; } }
+    /* «Revisión» de la web nueva (RevisionWeb.gs): la lectura `webRevision` (avisos, matrícula, cuadre, cambios para Séneca), las tres tablas del cuadre y la oferta, como los deja Google en `_revision-<curso>.json`. */
+    var revision = null;
+    if (ok && quiere.indexOf('revision') !== -1) {
+      try {
+        try { P.leer('escribirCambiosSeneca_')(); } catch (e) { /* sin el mundo de la mesa, la lista de cambios queda vacía */ }
+        revision = { rev: P.leer('revisionDatos_')(curso), cuadre: P.leer('revisionWebCuadre_')(curso), oferta: P.leer('revisionWebOferta_')(curso) };
+      } catch (e) { revision = null; }
+    }
     var resumen = ok ? P.leer('cuentasResumen_')(mundo.libro, cuadre) : null;   // solo cifras: lo que la web deja en `_navegador-cuentas.json` para que Google lo compare con el suyo
     var salida = {};
     SALIDAS.forEach(function (n) { salida[n] = mundo.libro.hojas[n] ? mundo.libro.hojas[n].filas : []; });
     var faltan = ENTRADAS.filter(function (n) { return !hojas[n]; });   // las que no se han pasado: la tabla sale como si estuvieran vacías, y la página lo tiene que decir
-    return { ok: ok === true, faltan: faltan, listado: listado, resumen: resumen, version: P.leer('VERSION_BD'), hojas: salida, cuadre: cuadre ? { sinExplicar: cuadre.sinExplicar, personas: cuadre.personas, materias: cuadre.materias, controles: cuadre.controles } : null, ms: Date.now() - t0 };
+    return { ok: ok === true, faltan: faltan, listado: listado, revision: revision, resumen: resumen, version: P.leer('VERSION_BD'), hojas: salida, cuadre: cuadre ? { sinExplicar: cuadre.sinExplicar, personas: cuadre.personas, materias: cuadre.materias, controles: cuadre.controles } : null, ms: Date.now() - t0 };
   }
 
   G.CuentasWeb = { SALIDAS: SALIDAS, ENTRADAS: ENTRADAS, calcular: calcular };

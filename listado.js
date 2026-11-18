@@ -2,6 +2,7 @@
    Solo lee. Pulsar a un alumno abre su ficha nueva (ficha.html) en otra pestaña. Los filtros se recuerdan en este navegador, como en la app de hoy. */
 (function () {
   'use strict';
+  var NAVEGADOR = /[?&]navegador=1(&|$)/.test(location.search);   // al cargar el programa, por si el menú cambia después la dirección
   var C = window.CarpetaWeb, E = window.EntrarWeb, L = window.ListadoBase;
   var $ = function (id) { return document.getElementById(id); };
   var T0 = performance.now();
@@ -95,10 +96,10 @@
     $('pruebas').hidden = true;
     $('listado').hidden = false;
     window.MedidasWeb.listado(performance.now() - T0);
-    /* Instrucción 171: con `?navegador=1` las cuentas se hacen en este ordenador (listado-navegador.js) y cambian lo que se ve. */
-    if (/[?&]navegador=1(&|$)/.test(location.search) && window.ListadoNavegador) {
-      window.ListadoNavegador.arrancar({ privada: C, curso: CURSO, lineaHora: E.lineaHora,
-        poner: function (filas, texto) { ALUMNOS = L.preparar(filas); $('datos').textContent = texto; pintarUnidades(); pintar(); } });
+    /* Instrucción 171: con `?navegador=1` las cuentas se hacen en este ordenador (navegador-cuentas.js) y cambian lo que se ve. */
+    if (NAVEGADOR && window.NavegadorCuentas) {
+      window.NavegadorCuentas.arrancar({ privada: C, curso: CURSO, quiere: ['listado'], lineaHora: E.lineaHora,
+        usar: function (res, texto) { ALUMNOS = L.preparar(res.listado); $('datos').textContent = texto; pintarUnidades(); pintar(); } });
     }
   }
 

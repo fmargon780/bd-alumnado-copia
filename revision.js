@@ -3,6 +3,8 @@
    este navegador con la misma clave que la app de hoy. Las cuentas son de revision-base.js. */
 (function () {
   'use strict';
+  /* Se mira al cargar el programa: el menú cambia después la dirección (?tarea=…) y se perdería. */
+  var NAVEGADOR = /[?&]navegador=1(&|$)/.test(location.search);
   var C = window.CarpetaWeb, E = window.EntrarWeb, B = window.RevisionBase, X = window.EscrituraWeb;
   var $ = function (id) { return document.getElementById(id); };
   var T0 = performance.now();
@@ -329,6 +331,11 @@
     $('pruebas').hidden = true;
     $('revision').hidden = false;
     window.MedidasWeb.revision(performance.now() - T0);
+    /* Instrucción 171: con `?navegador=1` las cuentas se hacen en este ordenador (navegador-cuentas.js) y cambian lo que se ve. */
+    if (NAVEGADOR && window.NavegadorCuentas) {
+      window.NavegadorCuentas.arrancar({ privada: C, curso: CURSO, quiere: ['revision'], lineaHora: E.lineaHora,
+        usar: function (res, texto) { DATOS = res.revision; $('datos').textContent = texto; OF = null; pintar(); } });
+    }
   }
 
   window.WebNueva = { resumenMedidas: function () { return window.MedidasWeb.resumen(); } };

@@ -6,7 +6,7 @@
   'use strict';
   var C = window.CarpetaWeb;
   var INDICE = '_estadisticas-indice.json';
-  var IND = null, FICHEROS = {}, CONTROL = null;
+  var IND = null, FICHEROS = {}, CONTROL = null, SUSTITUIDOS = {};   // SUSTITUIDOS: lo calculado en este ordenador (instrucción 171), que manda sobre el fichero
   var ESCRIBE = { webEstadisticasGuardar: 3, webEstadisticasBorrar: 1 };   // función de hoy -> cuántos argumentos lleva (el servidor lo vuelve a comprobar)
 
   window.CURSO_VISTO = '';
@@ -31,6 +31,7 @@
   function noPreparado(que) { return new Error('Todavía no está preparado ' + que + ': la aplicación lo deja hecho en su vuelta de cada hora.'); }
 
   async function fichero(clave, que) {
+    if (Object.prototype.hasOwnProperty.call(SUSTITUIDOS, clave)) return JSON.parse(JSON.stringify(SUSTITUIDOS[clave]));
     var f = FICHEROS[clave];
     if (!f) throw noPreparado(que);
     var x;
@@ -74,6 +75,8 @@
     poner: function (indice) { IND = indice; FICHEROS = indice.ficheros || {}; window.ESTADO.centro.nombre = indice.centro || ''; window.MI_CORREO = indice.miCorreo || ''; },
     /* Activa la escritura con el control de escritura.js (la aplicación ha preparado las subcarpetas de peticiones): aparecen «Guardar como…» y «Borrar». */
     activarEscritura: function (control) { CONTROL = control; window.ESTADO.miPapel = { rol: 'admin' }; document.body.classList.add('escribe'); },
+    /* Lo calculado en este ordenador para un dato (`datos|<curso>`, `materias|<curso>`): desde ahora se sirve en vez del fichero de Google. */
+    sustituir: function (clave, valor) { SUSTITUIDOS[clave] = valor; },
     indice: function () { return IND; }
   };
 })();

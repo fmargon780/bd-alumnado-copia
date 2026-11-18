@@ -3,6 +3,7 @@
    «Reintentar» (esta página no admite código dentro del HTML). Lee y, desde la instrucción 139, guardar y borrar consultas se escribe por peticiones. */
 (function () {
   'use strict';
+  var NAVEGADOR = /[?&]navegador=1(&|$)/.test(location.search);   // al cargar el programa, por si el menú cambia después la dirección
   var C = window.CarpetaWeb, E = window.EntrarWeb, P = window.EstadisticasPuente, X = window.EscrituraWeb;
   var $ = function (id) { return document.getElementById(id); };
   var T0 = performance.now(), MEDIDO = false;
@@ -74,6 +75,17 @@
     $('pruebas').hidden = true;
     $('estadisticas').hidden = false;
     ver(elegido, ind);
+    /* Instrucción 171: con `?navegador=1` los datos del curso en marcha se calculan en este ordenador (navegador-cuentas.js) y se sirven en vez de los de Google. */
+    if (NAVEGADOR && window.NavegadorCuentas) {
+      window.NavegadorCuentas.arrancar({ privada: C, curso: elegido, quiere: ['estadisticas'], lineaHora: E.lineaHora,
+        usar: function (res, texto) {
+          P.sustituir('datos|' + res.curso, res.estadisticas.datos); P.sustituir('materias|' + res.curso, res.estadisticas.materias);
+          $('datos').textContent = texto;
+          var EST = window.EST_; EST.datos = null; EST.curso = ''; EST.materias = {}; EST.cargados = {};
+          window.CURSO_VISTO = res.curso;
+          window.cargarEstadisticas();
+        } });
+    }
   }
 
   window.WebNueva = { resumenMedidas: function () { return window.MedidasWeb.resumen(); } };

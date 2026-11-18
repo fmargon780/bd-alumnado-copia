@@ -44,11 +44,16 @@
         revision = { rev: P.leer('revisionDatos_')(curso), cuadre: P.leer('revisionWebCuadre_')(curso), oferta: P.leer('revisionWebOferta_')(curso) };
       } catch (e) { revision = null; }
     }
+    /* «Estadísticas» (EstadisticasWeb.gs): los datos del curso y las materias, como los deja Google en `_estadisticas-datos-<curso>.json` y `_estadisticas-materias-<curso>.json`. */
+    var estadisticas = null;
+    if (ok && quiere.indexOf('estadisticas') !== -1) {
+      try { estadisticas = { datos: P.leer('webEstadisticasCurso')(curso), materias: P.leer('webEstadisticasMaterias')(curso) }; } catch (e) { estadisticas = null; }
+    }
     var resumen = ok ? P.leer('cuentasResumen_')(mundo.libro, cuadre) : null;   // solo cifras: lo que la web deja en `_navegador-cuentas.json` para que Google lo compare con el suyo
     var salida = {};
     SALIDAS.forEach(function (n) { salida[n] = mundo.libro.hojas[n] ? mundo.libro.hojas[n].filas : []; });
     var faltan = ENTRADAS.filter(function (n) { return !hojas[n]; });   // las que no se han pasado: la tabla sale como si estuvieran vacías, y la página lo tiene que decir
-    return { ok: ok === true, faltan: faltan, listado: listado, revision: revision, resumen: resumen, version: P.leer('VERSION_BD'), hojas: salida, cuadre: cuadre ? { sinExplicar: cuadre.sinExplicar, personas: cuadre.personas, materias: cuadre.materias, controles: cuadre.controles } : null, ms: Date.now() - t0 };
+    return { ok: ok === true, faltan: faltan, listado: listado, revision: revision, estadisticas: estadisticas, resumen: resumen, version: P.leer('VERSION_BD'), hojas: salida, cuadre: cuadre ? { sinExplicar: cuadre.sinExplicar, personas: cuadre.personas, materias: cuadre.materias, controles: cuadre.controles } : null, ms: Date.now() - t0 };
   }
 
   G.CuentasWeb = { SALIDAS: SALIDAS, ENTRADAS: ENTRADAS, calcular: calcular };

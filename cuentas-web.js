@@ -10,14 +10,15 @@
 
   /* Las pestañas del cuaderno que el programa LEE y que no salen de los ficheros de Séneca: lo que escriben las personas y lo que sabe BD Alumnado (reparto de la mesa, correcciones, oferta, notas, revisado…). Hasta la fila 172 las deja
      Google; la web las pasa en `hojas`. Más el cuaderno de notas de la evaluación («EV 1º ESO»…), que es otro libro. Una prueba (pruebas/cuentas-navegador.mjs) avisa si el programa empieza a leer una pestaña que no está aquí. */
-  var ENTRADAS = ['OFERTA', '_excel_jefatura', '_mesa_marcas', '_mesa_modelos', '_codigos_excel', '_notas', '_correcciones', '_revisados', '_transito'];
+  var ENTRADAS = ['OFERTA', '_excel_jefatura', '_mesa_marcas', '_mesa_modelos', '_codigos_excel', '_notas', '_correcciones', '_revisados', '_transito', '_centro'];
 
   function calcular(entradas) {
     if (!G.CuentasMundo || !G.CuentasPrograma) throw new Error('Faltan cuentas-mundo.js o cuentas-programa.js.');
     var t0 = Date.now();
     var mundo = G.CuentasMundo.crear({ carpetas: entradas.carpetas, centro: entradas.centro, curso: entradas.curso });
     var hojas = entradas.hojas || {};
-    Object.keys(hojas).forEach(function (n) { if (!mundo.libro.hojas[n]) mundo.libro.insertSheet(n).filas = JSON.parse(JSON.stringify(hojas[n])); });
+    /* `_centro` (el nombre y los datos del centro) ya existe con lo que se pasó en `centro`: lo de Google manda. */
+    Object.keys(hojas).forEach(function (n) { if (!mundo.libro.hojas[n]) mundo.libro.insertSheet(n); if (!mundo.libro.hojas[n].filas.length || n === '_centro') mundo.libro.hojas[n].filas = JSON.parse(JSON.stringify(hojas[n])); });
     var P = G.CuentasPrograma(mundo.A);
     P.poner('avisar_', function () {});
     /* El cuaderno de notas de la evaluación («EV 1º ESO»…) es otro libro: el programa lo pide por su identificador. */

@@ -19,7 +19,9 @@
   async function arrancar(o) {
     $('cuentasNavegador').hidden = false;
     estado('Preparando las cuentas en este ordenador…');
+    var tPrograma = performance.now();
     try { await cargarPrograma(); } catch (e) { estado(e.message, true); return; }
+    tPrograma = performance.now() - tPrograma;   // bajar y preparar el programa de las cuentas
     var C = G.CentroDatosWeb;
     var r = await C.recordada();
     if (r.estado !== 'abierta') {
@@ -32,9 +34,9 @@
         };
       });
     }
+    var T_TODO = performance.now();   // desde que hay carpeta: leer los ficheros y calcular. Con el programa, es lo que tarda (la meta es 3 segundos); no cuenta lo que se espera a que alguien pulse el botón
     estado('Calculando con los ficheros de Séneca…');
     try {
-      var t0 = performance.now();
       var res = await G.CuentasCarga.cargar({ centro: C, privada: o.privada, datosCentro: { nombre: '', codigo: '' }, quiere: o.quiere, clave: o.clave });
       if (!res.ok || o.quiere.some(function (q) { return !res[q]; })) throw new Error('Las cuentas no han terminado bien. Se queda lo de siempre.');
       if (o.curso !== res.curso) throw new Error('Este ordenador solo calcula el curso en marcha (' + res.curso + '). Se queda lo de siempre.');
@@ -42,9 +44,10 @@
       var avisos = [];
       if (res.sinExpedientes) avisos.push('sin los expedientes de Primaria y Secundaria'); else avisos.push('con ' + res.expedientes.primaria + ' expedientes de Primaria y ' + res.expedientes.secundaria + ' de Secundaria');
       if (res.faltan.length) avisos.push('sin ' + res.faltan.length + ' pestañas del cuaderno que deja Google (' + res.faltan.join(', ') + ')');
-      estado('Calculado en este ordenador en ' + Math.round(performance.now() - t0) + ' ms' + (avisos.length ? ', ' + avisos.join(' y ') : '') + '.');
+      var ms = Math.round(tPrograma + performance.now() - T_TODO);
+      estado('Calculado en este ordenador en ' + ms + ' ms' + (ms > 3000 ? ' (más de los 3 segundos que queremos)' : '') + (avisos.length ? ', ' + avisos.join(' y ') : '') + '.');
       /* Solo cifras, para que Google compare (comprobación `navegador-cuentas-igual`). Si no se puede escribir, no pasa nada. */
-      try { await o.privada.escribirJson('_navegador-cuentas.json', { formato: 1, hora: new Date().toISOString(), version: res.version, curso: res.curso, horaSeneca: res.hora, sinExpedientes: res.sinExpedientes, faltan: res.faltan, resumen: res.resumen }); } catch (e) { /* sin él, la comprobación espera */ }
+      try { await o.privada.escribirJson('_navegador-cuentas.json', { formato: 1, hora: new Date().toISOString(), version: res.version, curso: res.curso, horaSeneca: res.hora, sinExpedientes: res.sinExpedientes, faltan: res.faltan, ms: ms, resumen: res.resumen }); } catch (e) { /* sin él, la comprobación espera */ }
       return res;
     } catch (e) { estado((e && e.message) || 'No he podido calcular aquí. Se queda lo de siempre.', true); }
   }

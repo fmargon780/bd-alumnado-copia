@@ -42,7 +42,7 @@ const CENTRO_PARTIDA_ = {
 
 /* La versión que se enseña en el panel. Codigo.gs tiene la suya; mientras
    esta exista, manda esta. */
-const VERSION_BD = 'BD v225';
+const VERSION_BD = 'BD v226';
 
 /*** BaseHojas.gs ***/
 /*** ================= NOMBRES DE PESTAÑAS, PREFIJOS Y CLAVES QUE USA TODO EL PROGRAMA =================
@@ -38057,13 +38057,13 @@ function buscadorIndiceLeer_(carpeta) {
  *
  *   _cuentas-entradas.json   { formato, hora, version, hojas: { pestaña: filas }, notas: { 'EV 1º ESO': filas } }   las fechas van como { "$f": milisegundos }
  *
- * Las pestañas (nueve, con «_transito») son las de `CuentasWeb.ENTRADAS` (web/cuentas-web.js); una prueba comprueba que son las mismas. Un fichero no se reescribe si su contenido no ha cambiado. Nunca falla.
+ * Las pestañas (diez, con «_transito» y «_centro») son las de `CuentasWeb.ENTRADAS` (web/cuentas-web.js); una prueba comprueba que son las mismas. Un fichero no se reescribe si su contenido no ha cambiado. Nunca falla.
  *
  * ======================================================== ***/
 
 const CUENTAS_ENTRADAS_FICHERO_ = '_cuentas-entradas.json';
 const CUENTAS_ENTRADAS_FORMATO_ = 1;
-const CUENTAS_ENTRADAS_HOJAS_ = ['OFERTA', '_excel_jefatura', '_mesa_marcas', '_mesa_modelos', '_codigos_excel', '_notas', '_correcciones', '_revisados', '_transito'];
+const CUENTAS_ENTRADAS_HOJAS_ = ['OFERTA', '_excel_jefatura', '_mesa_marcas', '_mesa_modelos', '_codigos_excel', '_notas', '_correcciones', '_revisados', '_transito', '_centro'];
 const CUENTAS_ENTRADAS_CURSOS_NOTAS_ = ['1º', '2º', '3º', '4º'];
 const CUENTAS_ENTRADAS_PROP_HUELLA_ = 'WEB_NUEVA_CUENTAS_ENTRADAS';
 

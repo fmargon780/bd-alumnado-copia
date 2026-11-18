@@ -16,7 +16,7 @@
   $('version').textContent = window.VERSION_WEB + ' · ' + (window.COMMIT_WEB || 'sin-marca') + (E.DESDE_DISCO ? ' · copia sin internet' : '');
 
   /* Cada cambio del HTML de la pantalla: sus `onclick` pasan a atenderse desde aquí y lo que escribe se aparta. */
-  ['tab-datos', 'tab-portada', 'tab-descargas'].forEach(function (id) {
+  ['tab-datos', 'tab-portada', 'tab-descargas', 'mensajes'].forEach(function (id) {
     new MutationObserver(function () { P.preparar($(id)); }).observe($(id), { childList: true, subtree: true });
     P.atender($(id));
   });

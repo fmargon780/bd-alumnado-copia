@@ -39,7 +39,7 @@
   var INNER = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
   Object.defineProperty(Element.prototype, 'innerHTML', {
     configurable: true, enumerable: INNER.enumerable, get: INNER.get,
-    set: function (h) { INNER.set.call(this, typeof h === 'string' ? h.replace(/(\s)style=(["'])/g, '$1data-estilo=$2') : h); }
+    set: function (h) { INNER.set.call(this, typeof h === 'string' ? h.replace(/(\s)style=(["'])/g, '$1data-estilo=$2').replace(/(\s)on(click|change|input|keydown|toggle)=/g, '$1data-pre-on$2=') : h); }
   });
   /* La biblioteca de arrastrar no está (la página no carga nada de fuera) y aquí no se arrastra. */
   var SORTABLE_REAL = window.Sortable;   // la biblioteca de web/lib/, si la página la ha cargado: solo se usa con la escritura activada
@@ -209,14 +209,15 @@
   /* Pasa `onclick="…"` a `data-onclick="…"` (la página no admite código dentro del HTML) y deja quietos los controles que escriben: los botones se esconden, los campos se apagan (el estado que enseñan se sigue viendo).
      Las tarjetas de alumno dejan de ser arrastrables. */
   function preparar(raiz) {
-    var nodos = raiz.querySelectorAll('[onclick],[onchange],[oninput],[onkeydown]');
+    var nodos = raiz.querySelectorAll('[onclick],[onchange],[oninput],[onkeydown],[data-pre-onclick],[data-pre-onchange],[data-pre-oninput],[data-pre-onkeydown]');
     Array.prototype.forEach.call(nodos, function (el) {
       var escribe = false;
-      el.removeAttribute('onkeydown');
+      el.removeAttribute('onkeydown'); el.removeAttribute('data-pre-onkeydown');
       EVENTOS.forEach(function (tipo) {
-        var t = el.getAttribute('on' + tipo);
+        var t = el.getAttribute('data-pre-on' + tipo);
+        if (t === null) t = el.getAttribute('on' + tipo);
         if (t === null) return;
-        el.removeAttribute('on' + tipo);
+        el.removeAttribute('on' + tipo); el.removeAttribute('data-pre-on' + tipo);
         el.setAttribute('data-on' + tipo, t);
         if (!soloMira(t)) escribe = true;
       });

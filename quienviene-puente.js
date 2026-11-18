@@ -170,15 +170,23 @@
     });
   }
 
+  /* Chrome avisa de «inline event handler» en cuanto se escribe un `onclick=` en el HTML de la página (la página no admite código dentro del HTML): se guarda como `data-pre-onclick` y `preparar` lo pasa a `data-onclick`. */
+  var INNER = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+  Object.defineProperty(Element.prototype, 'innerHTML', {
+    configurable: true, enumerable: INNER.enumerable, get: INNER.get,
+    set: function (h) { INNER.set.call(this, typeof h === 'string' ? h.replace(/(\s)on(click|change|input|keydown|toggle)=/g, '$1data-pre-on$2=') : h); }
+  });
+
   /* Pasa `onclick="…"` a `data-onclick="…"` (la página no admite código dentro del HTML) y deja quietos los controles que escriben: los botones se esconden, los campos se apagan (el estado que enseñan se sigue viendo). */
   function preparar(raiz) {
-    var nodos = raiz.querySelectorAll('[onclick],[onchange],[oninput]');
+    var nodos = raiz.querySelectorAll('[onclick],[onchange],[oninput],[data-pre-onclick],[data-pre-onchange],[data-pre-oninput],[data-pre-onkeydown]');
     Array.prototype.forEach.call(nodos, function (el) {
       var escribe = false;
       EVENTOS.forEach(function (tipo) {
-        var t = el.getAttribute('on' + tipo);
+        var t = el.getAttribute('data-pre-on' + tipo);
+        if (t === null) t = el.getAttribute('on' + tipo);
         if (t === null) return;
-        el.removeAttribute('on' + tipo);
+        el.removeAttribute('on' + tipo); el.removeAttribute('data-pre-on' + tipo);
         el.setAttribute('data-on' + tipo, t);
         var m = /^\s*([A-Za-z_$][\w$]*)\(/.exec(t);
         var asigna = CONTROL && /^\s*[A-Za-z_$][\w$]*_\s*=\s*(true|false)\s*$/.test(t);

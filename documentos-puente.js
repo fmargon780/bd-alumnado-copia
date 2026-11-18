@@ -39,7 +39,7 @@
   var INNER = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
   Object.defineProperty(Element.prototype, 'innerHTML', {
     configurable: true, enumerable: INNER.enumerable, get: INNER.get,
-    set: function (h) { INNER.set.call(this, typeof h === 'string' ? h.replace(/(\s)style=(["'])/g, '$1data-estilo=$2') : h); }
+    set: function (h) { INNER.set.call(this, typeof h === 'string' ? h.replace(/(\s)style=(["'])/g, '$1data-estilo=$2').replace(/(\s)on(click|change|input|keydown|toggle)=/g, '$1data-pre-on$2=') : h); }
   });
 
   window.avisar = function (texto, clase) {
@@ -216,17 +216,18 @@
   function preparar(raiz) {
     Array.prototype.forEach.call(raiz.querySelectorAll('[data-estilo]'), function (el) { el.style.cssText = el.getAttribute('data-estilo'); el.removeAttribute('data-estilo'); });
     Array.prototype.forEach.call(raiz.querySelectorAll('a[href^="javascript:"]'), function (a) { a.setAttribute('href', '#'); a.setAttribute('data-sinir', '1'); });
-    Array.prototype.forEach.call(raiz.querySelectorAll('[ontoggle]'), function (el) { el.removeAttribute('ontoggle'); });
-    Array.prototype.forEach.call(raiz.querySelectorAll('select[onchange]'), function (s) {
-      if (/window\.open\(this\.value/.test(s.getAttribute('onchange'))) { s.removeAttribute('onchange'); s.setAttribute('data-abrir', '1'); }
+    Array.prototype.forEach.call(raiz.querySelectorAll('[ontoggle],[data-pre-ontoggle]'), function (el) { el.removeAttribute('ontoggle'); el.removeAttribute('data-pre-ontoggle'); });
+    Array.prototype.forEach.call(raiz.querySelectorAll('select[onchange],select[data-pre-onchange]'), function (s) {
+      if (/window\.open\(this\.value/.test(s.getAttribute('data-pre-onchange') || s.getAttribute('onchange'))) { s.removeAttribute('onchange'); s.removeAttribute('data-pre-onchange'); s.setAttribute('data-abrir', '1'); }
     });
-    Array.prototype.forEach.call(raiz.querySelectorAll('[onclick],[onchange],[oninput],[onkeydown]'), function (el) {
+    Array.prototype.forEach.call(raiz.querySelectorAll('[onclick],[onchange],[oninput],[onkeydown],[data-pre-onclick],[data-pre-onchange],[data-pre-oninput],[data-pre-onkeydown]'), function (el) {
       var escribe = false;
-      el.removeAttribute('onkeydown');
+      el.removeAttribute('onkeydown'); el.removeAttribute('data-pre-onkeydown');
       EVENTOS.forEach(function (tipo) {
-        var t = el.getAttribute('on' + tipo);
+        var t = el.getAttribute('data-pre-on' + tipo);
+        if (t === null) t = el.getAttribute('on' + tipo);
         if (t === null) return;
-        el.removeAttribute('on' + tipo);
+        el.removeAttribute('on' + tipo); el.removeAttribute('data-pre-on' + tipo);
         el.setAttribute('data-on' + tipo, t);
         if (!soloMira(t)) escribe = true;
       });

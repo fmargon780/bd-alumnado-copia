@@ -19,7 +19,7 @@
   var ANTIGUAS = { 'quienviene.html': 'admision/resolucion', 'revision.html': 'inicio/avisos', 'mesa.html': 'agrupamiento/mesa', 'documentos.html': 'inicio/documentos', 'transito.html': 'transito/tutores' };
   if (!TAREA && ANTIGUAS[actual]) {
     var d = ANTIGUAS[actual].split('/');
-    location.replace(actual + '?tarea=' + d[0] + '&paso=' + d[1] + (Q.get('navegador') === '1' ? '&navegador=1' : ''));   // el parámetro de las cuentas en el navegador (instrucción 171) se conserva
+    location.replace(actual + '?tarea=' + d[0] + '&paso=' + d[1] + (Q.get('navegador') === '0' || Q.get('navegador') === '1' ? '&navegador=' + Q.get('navegador') : ''));   // `?navegador=0` o `=1` (apaga o pide las cuentas en el navegador, instrucción 171) se conserva
     return;
   }
 

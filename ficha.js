@@ -2,7 +2,7 @@
    lo dibuja con ficha-dibujo.js y mide cuánto tarda. Lee y, si la carpeta tiene las subcarpetas de peticiones (instrucción 139, ficha-escribir.js y escritura.js), también escribe notas, correcciones y marcas. Dirección: ficha.html?clave=…&curso=<curso escolar>&unidad=… (actuales) o ficha.html?clave=…&antiguo=1. */
 (function () {
   'use strict';
-  var NAVEGADOR = /[?&]navegador=1(&|$)/.test(location.search);   // al cargar el programa, por si el menú cambia después la dirección
+  var BUSQUEDA = location.search;   // al cargar el programa, por si el menú cambia después la dirección
   var C = window.CarpetaWeb, E = window.EntrarWeb, B = window.FichaBase, D = window.FichaDibujo, X = window.EscrituraWeb, F = window.FichaEscribir;
   var $ = function (id) { return document.getElementById(id); };
   var T0 = performance.now();
@@ -87,8 +87,8 @@
     $('pruebas').hidden = true;
     caja.hidden = false;
     window.MedidasWeb.ficha(performance.now() - T0);
-    /* Instrucción 171: con `?navegador=1` la ficha de un alumno actual se calcula en este ordenador (navegador-cuentas.js) y cambia lo que se ve. */
-    if (NAVEGADOR && !ANTIGUO && window.NavegadorCuentas) {
+    /* Instrucción 171: la ficha de un alumno actual se calcula en este ordenador (navegador-cuentas.js) y cambia lo que se ve. */
+    if (window.NavegadorCuentas && window.NavegadorCuentas.debeArrancar(BUSQUEDA) && !ANTIGUO) {
       window.NavegadorCuentas.arrancar({ privada: C, curso: CURSO, quiere: ['ficha'], clave: CLAVE, lineaHora: E.lineaHora,
         usar: function (res, texto) { registro = res.ficha.registro; $('datos').textContent = texto; pintar(); } });
     }

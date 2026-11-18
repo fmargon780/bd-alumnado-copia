@@ -42,14 +42,29 @@
       var e = usadas[i];
       ficheros.push({ nombre: String(e.fichero), bytes: new Uint8Array(await C.leerBytes(e)), fecha: Date.parse(String(e.subido || '')) || 0 });
     }
+    /* Los expedientes de Primaria y Secundaria: ficheros de un solo alumno. Su lista es `indice-alumnos.json` y están en `alumnos/<clave>/` (contrato del Centro de datos, «Los ficheros de un solo alumno»). */
+    var expedientes = { 'Expedientes Primaria': [], 'Expedientes Secundaria': [] }, hayExpedientes = false;
+    try {
+      var ia = await C.leerJsonRaiz('indice-alumnos.json');
+      var lista = (ia.listados || []).filter(function (e) { return e && e.fichero && (e.clave === 'expediente-primaria' || e.clave === 'expediente-secundaria'); });
+      hayExpedientes = true;
+      for (var k = 0; k < lista.length; k += 25) {
+        await Promise.all(lista.slice(k, k + 25).map(async function (e) {
+          var f = { nombre: String(e.fichero), bytes: new Uint8Array(await C.leerBytes({ fichero: e.fichero, ruta: e.ruta || ('alumnos/' + e.clave + '/' + e.fichero) })), fecha: Date.parse(String(e.subido || '')) || 0 };
+          expedientes[e.clave === 'expediente-secundaria' ? 'Expedientes Secundaria' : 'Expedientes Primaria'].push(f);
+        }));
+      }
+    } catch (err) { hayExpedientes = false; }   // sin esa lista no se sabe qué expedientes hay: se calcula sin ellos y se dice
     var entradas = { hojas: {}, notas: {} };
     try { var j = revivir(await privada.leerJson(FICHERO_ENTRADAS)); entradas = { hojas: j.hojas || {}, notas: j.notas || {}, hora: j.hora || '' }; } catch (err) { /* sin el fichero de Google se calcula sin él y se dice (`faltan`) */ }
     var carpetas = {}; carpetas[CARPETA_DATOS] = ficheros;
+    if (hayExpedientes) { carpetas['Expedientes Primaria'] = expedientes['Expedientes Primaria']; carpetas['Expedientes Secundaria'] = expedientes['Expedientes Secundaria']; }
     var r = G.CuentasWeb.calcular({ carpetas: carpetas, hojas: entradas.hojas, notas: entradas.notas, centro: o.datosCentro, quiere: o.quiere, curso: indice.cursoActual || undefined });
     r.curso = indice.cursoActual || '26-27';
     r.hora = C.horaDeLosDatos(indice, usadas);
     r.ficheros = ficheros.length;
-    r.sinExpedientes = true;   // los expedientes de Primaria y Secundaria no vienen todavía de esta carpeta (queda por decidir con Francisco)
+    r.sinExpedientes = !hayExpedientes;
+    r.expedientes = { primaria: expedientes['Expedientes Primaria'].length, secundaria: expedientes['Expedientes Secundaria'].length };
     r.ms = Date.now() - t0;
     return r;
   }

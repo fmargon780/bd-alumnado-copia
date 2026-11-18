@@ -40,7 +40,7 @@
       if (o.curso !== res.curso) throw new Error('Este ordenador solo calcula el curso en marcha (' + res.curso + '). Se queda lo de siempre.');
       o.usar(res, o.lineaHora(res.hora).replace(/^Datos/, 'Datos de Séneca') + ' · calculados en este ordenador');
       var avisos = [];
-      if (res.sinExpedientes) avisos.push('sin los expedientes de Primaria y Secundaria');
+      if (res.sinExpedientes) avisos.push('sin los expedientes de Primaria y Secundaria'); else avisos.push('con ' + res.expedientes.primaria + ' expedientes de Primaria y ' + res.expedientes.secundaria + ' de Secundaria');
       if (res.faltan.length) avisos.push('sin ' + res.faltan.length + ' pestañas del cuaderno que deja Google (' + res.faltan.join(', ') + ')');
       estado('Calculado en este ordenador en ' + Math.round(performance.now() - t0) + ' ms' + (avisos.length ? ', ' + avisos.join(' y ') : '') + '.');
       /* Solo cifras, para que Google compare (comprobación `navegador-cuentas-igual`). Si no se puede escribir, no pasa nada. */

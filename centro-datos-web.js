@@ -50,6 +50,12 @@
     return JSON.parse(decodificar(await bytesDe(RAIZ, INDICE)));
   }
 
+  /* Un JSON de la raíz de la carpeta (por ejemplo `indice-alumnos.json`, el de los ficheros de un solo alumno). */
+  async function leerJsonRaiz(nombre) {
+    if (!RAIZ) throw new Error('Falta elegir la carpeta CENTRO DE DATOS.');
+    return JSON.parse(decodificar(await bytesDe(RAIZ, nombre)));
+  }
+
   /* Las entradas del índice que son un fichero de Séneca para esta web: los listados (no los de «por alumno», que se piden uno a uno) con fichero. */
   function ficherosDeSeneca(indice) {
     return ((indice && indice.listados) || []).filter(function (e) { return e && e.fichero && !e.porAlumno; });
@@ -117,5 +123,5 @@
   }
 
   G.CentroDatosWeb = { INDICE: INDICE, CONTRATO_MAXIMO: CONTRATO_MAXIMO, guardada: guardada, abrir: abrir, leerIndice: leerIndice, ficherosDeSeneca: ficherosDeSeneca, horaDeLosDatos: horaDeLosDatos,
-    entrada: entrada, recordada: recordada, conectar: conectar, leerBytes: leerBytes, leerTexto: leerTexto, estado: estado, hayCarpeta: function () { return !!RAIZ; }, decodificar: decodificar };
+    entrada: entrada, leerJsonRaiz: leerJsonRaiz, recordada: recordada, conectar: conectar, leerBytes: leerBytes, leerTexto: leerTexto, estado: estado, hayCarpeta: function () { return !!RAIZ; }, decodificar: decodificar };
 })();

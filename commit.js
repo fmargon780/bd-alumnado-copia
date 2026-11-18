@@ -1,1 +1,1 @@
-window.COMMIT_WEB = 'd432d77';
+window.COMMIT_WEB = '2b8efc6';

@@ -80,7 +80,7 @@ function pintarComprobaciones_() {
   pintarFijas_();
   pintarCajaDiagnostico_();
   if (!cont || !r) return;
-  if (!r.hay) { cont.innerHTML = '<p class="vacio-hoy">Todavía no se ha hecho ninguna comprobación. Se hace sola al actualizar los datos.</p>'; return; }
+  if (!r.hay) { cont.innerHTML = '<p class="vacio-hoy">Todavía no se ha hecho ninguna comprobación. Se hace sola.</p>'; return; }
   var s = r.resumen || {};
   var sinDatos = (s['sin datos'] || 0) + (s['sin tiempo'] || 0);
   var rojo = (s.mal || 0) + (s.error || 0) > 0;

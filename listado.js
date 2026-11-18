@@ -95,6 +95,11 @@
     $('pruebas').hidden = true;
     $('listado').hidden = false;
     window.MedidasWeb.listado(performance.now() - T0);
+    /* Instrucción 171: con `?navegador=1` las cuentas se hacen en este ordenador (listado-navegador.js) y cambian lo que se ve. */
+    if (/[?&]navegador=1(&|$)/.test(location.search) && window.ListadoNavegador) {
+      window.ListadoNavegador.arrancar({ privada: C, curso: CURSO, lineaHora: E.lineaHora,
+        poner: function (filas, texto) { ALUMNOS = L.preparar(filas); $('datos').textContent = texto; pintarUnidades(); pintar(); } });
+    }
   }
 
   window.WebNueva = { resumenMedidas: function () { return window.MedidasWeb.resumen(); } };

@@ -2,7 +2,7 @@
    hoy que esa pantalla da por hechas, sin llamar a Apps Script: dónde está el curso, cómo se piden el centro, quién entra, los cambios, las comprobaciones, las fechas, los ficheros de Séneca y el estado de la app (aquí, ficheros de
    la carpeta privada que dejó el disparador), qué hacen los botones que están dentro del HTML (esta página no admite código dentro del HTML: se atienden desde aquí) y qué pasa con los que escriben.
    Instrucción 139, parte 2: si la aplicación ha preparado las subcarpetas de peticiones (`activarEscritura`), las fechas del curso, el centro, quién entra, los objetivos de «Quién viene», abrir, pasar a en marcha y cerrar
-   un curso y «Rehacer todo desde cero» se escriben aquí: `llamar` deja una petición (escritura.js), espera a que la aplicación la aplique, vuelve a leer los ficheros (que la aplicación ha rehecho antes de contestar) y
+   un curso se escriben aquí: `llamar` deja una petición (escritura.js), espera a que la aplicación la aplique, vuelve a leer los ficheros (que la aplicación ha rehecho antes de contestar) y
    contesta con lo que contestó la función de hoy; la pantalla de hoy sigue como siempre. Lo demás que escribe (subir ficheros, contraseña de GitHub, diagnóstico...) se cambia en la app de hoy. Se carga ANTES que la pantalla. */
 (function () {
   'use strict';
@@ -10,7 +10,7 @@
   var INDICE = '_datos-indice.json';
   var IND = null, GENERAL = null, CURSOS = {}, CONTROL = null;
   /* Lo que se puede escribir desde aquí (nombre de la función de hoy -> cuántos argumentos lleva; el servidor lo vuelve a comprobar) y las funciones de la pantalla que lo piden. */
-  var ESCRIBE = { webCalendarioGuardar: 2, webCentroGuardar: 1, webEquipoAlta: 1, webEquipoCorregir: 2, webEquipoBaja: 1, webEquipoReenviar: 1, webEquipoMiNombre: 1, webObjetivoGuardar: 4, webAbrirCurso: 1, webCerrarCurso: 2, webPasarAEnMarcha: 1, webRehacerTodo: 0 };
+  var ESCRIBE = { webCalendarioGuardar: 2, webCentroGuardar: 1, webEquipoAlta: 1, webEquipoCorregir: 2, webEquipoBaja: 1, webEquipoReenviar: 1, webEquipoMiNombre: 1, webObjetivoGuardar: 4, webAbrirCurso: 1, webCerrarCurso: 2, webPasarAEnMarcha: 1 };
   var UI_ESCRIBE = {};
   ['guardarCentro_', 'guardarCalendario_', 'editarObjetivo_', 'equipoNuevo_', 'equipoMiNombre_', 'equipoGuardar_', 'equipoCancelar_', 'equipoCorregir_', 'equipoReenviar_', 'equipoBaja_', 'equipoCargoCambia_', 'cerrarCurso', 'abrirCurso', 'pasarAEnMarcha'].forEach(function (n) { UI_ESCRIBE[n] = true; });
   var CAMPOS = '[id^="centro_"], [id^="equipo"], .cal-desde, .cal-hasta';   // los campos de los formularios que se pueden guardar

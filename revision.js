@@ -128,7 +128,7 @@
   }
 
   function tablaCuadre(t) {
-    if (!t || !t.titulos.length) return el('p', 'cuadre-vacio', 'Todavía no hay nada en esta tabla: se escribe con «Actualizar los datos».');
+    if (!t || !t.titulos.length) return el('p', 'cuadre-vacio', 'Todavía no hay nada en esta tabla: se rellenará sola cuando lleguen los datos.');
     var caja = el('div', 'caja-tabla'), tabla = el('table', 'listado cuadre-t'), cab = el('tr');
     t.titulos.forEach(function (x) { cab.appendChild(el('th', '', x)); });
     cab.appendChild(el('th'));

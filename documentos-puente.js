@@ -27,7 +27,7 @@
   window.escapaHtml = function (t) { return String(t === null || t === undefined ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
   window.escapaAtributo_ = function (t) { return String(t === null || t === undefined ? '' : t).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); };
   window.mensajeDeError = function (e) { return (e && e.message) ? e.message : String(e); };
-  window.fraseDatos_ = function (t) { return t; };
+  window.fraseDatos_ = function (t, minuscula) { var f = 'Se rellenará solo cuando lleguen los datos.'; return minuscula ? f.charAt(0).toLowerCase() + f.slice(1) : f; };   // no hay botón «Actualizar los datos»: los datos llegan solos (instrucción 171)
   window.datoHoy_ = function (fn, curso) { return window.MEMORIA_[fn + JSON.stringify([curso])]; };
   window.olvidarLecturas_ = function (prefijos) {
     if (prefijos === '*' || prefijos === undefined) { window.MEMORIA_ = {}; return; }

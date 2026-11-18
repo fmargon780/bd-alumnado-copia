@@ -125,20 +125,3 @@ function pararSondeo() {
   if (SONDEO_ACTUALIZACION) { clearInterval(SONDEO_ACTUALIZACION); SONDEO_ACTUALIZACION = null; }
 }
 
-/* Instrucción 84: el enlace discreto de la Portada. Pide confirmación en una frase; el servidor olvida lo leído y lo guardado de cada pestaña y lanza una actualización normal. */
-function rehacerTodoDesdeCero() {
-  if (!confirm('¿Rehacer todo desde cero? Olvida lo que la app tenía guardado de la última vez y vuelve a leer y escribir todo: tarda más que una actualización normal.')) return;
-  limpiarAviso();
-  llamar('webActualizarDatos', true).then(function (r) {
-    if (r && r.ok === false) { avisar(r.motivo || 'No he podido rehacerlo ahora.', 'error'); return; }
-    return llamar('webEstadoActualizacion').then(function (a) { pintarActualizacion(a, true); });
-  }).catch(function (e) { avisar('No he podido arrancar la actualización. ' + mensajeDeError(e), 'error'); });
-}
-
-function pulsarActualizar() {
-  limpiarAviso();
-  llamar('webActualizarDatos').then(function () {
-    return llamar('webEstadoActualizacion');
-  }).then(function (a) { pintarActualizacion(a, true); })
-    .catch(function (e) { avisar('No he podido arrancar la actualización. ' + mensajeDeError(e), 'error'); });
-}

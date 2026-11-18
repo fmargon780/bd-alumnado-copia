@@ -87,6 +87,26 @@
   }
   async function leerTexto(e) { return decodificar(await leerBytes(e)); }
 
+  /* La carpeta recordada de otras veces: { estado: 'abierta' } si se puede usar ya, { estado: 'permiso', handle } si hay que pedir permiso de nuevo (un clic), { estado: 'elegir' } si no hay ninguna o ya no vale. */
+  async function recordada() {
+    var h = null;
+    try { h = await guardada(); } catch (e) { h = null; }
+    if (!h) return { estado: 'elegir' };
+    var permiso = 'prompt';
+    try { permiso = await h.queryPermission({ mode: 'read' }); } catch (e) { permiso = 'prompt'; }
+    if (permiso === 'granted') return (await abrir(h)) ? { estado: 'abierta' } : { estado: 'elegir' };
+    return { estado: 'permiso', handle: h };
+  }
+  /* Con un clic de la persona: da el permiso de la recordada o elige otra carpeta. Devuelve true si la carpeta queda abierta. */
+  async function conectar(pendiente) {
+    var h = pendiente && pendiente.handle, r = 'denied';
+    if (h) { try { r = await h.requestPermission({ mode: 'read' }); } catch (e) { r = 'denied'; } if (r === 'granted' && (await abrir(h))) return true; }
+    try { h = await G.showDirectoryPicker({ id: 'bd-centro-datos', mode: 'read' }); } catch (e) { return false; }
+    if (!(await abrir(h))) return false;
+    try { await guardada(h); } catch (e) { /* sin recordarla: se pedirá otra vez */ }
+    return true;
+  }
+
   /* Hasta cuándo manda lo que hay: `ocupado` (el Centro de datos está recolocando ficheros) o un contrato más nuevo que el que esta web entiende. */
   var CONTRATO_MAXIMO = 2;
   function estado(indice) {
@@ -97,5 +117,5 @@
   }
 
   G.CentroDatosWeb = { INDICE: INDICE, CONTRATO_MAXIMO: CONTRATO_MAXIMO, guardada: guardada, abrir: abrir, leerIndice: leerIndice, ficherosDeSeneca: ficherosDeSeneca, horaDeLosDatos: horaDeLosDatos,
-    entrada: entrada, leerBytes: leerBytes, leerTexto: leerTexto, estado: estado, hayCarpeta: function () { return !!RAIZ; }, decodificar: decodificar };
+    entrada: entrada, recordada: recordada, conectar: conectar, leerBytes: leerBytes, leerTexto: leerTexto, estado: estado, hayCarpeta: function () { return !!RAIZ; }, decodificar: decodificar };
 })();

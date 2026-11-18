@@ -52,7 +52,6 @@
     ['tab-datos', 'tab-portada', 'tab-descargas'].forEach(function (id) { $(id).classList.toggle('oculto', id !== ZONA[paso]); });
     window.VISTA_DATOS_ = paso;
     window.DESCARGAS_TAREA_ = TAREA_DATOS;   // vacío: «Ficheros de Séneca» de Configuración los enseña todos; con tarea, solo los de esa tarea
-    $('rehacer').hidden = !(P.escribe() && paso === 'estado');
     pintarPasos();
     if (ZONA[paso] === 'tab-datos') window.cargarDatosYConfiguracion_();
     else if (ZONA[paso] === 'tab-descargas') window.cargarDescargas();
@@ -87,7 +86,6 @@
       P.activarEscritura(X.controlador({ alCambiar: function () {}, alMedir: function (ms) { window.MedidasWeb.escribir(ms); },
         alEstado: function (texto, error) { var l = $('escritura'); l.textContent = texto || ''; l.className = 'estado-escritura' + (error ? ' estado-error' : ''); l.hidden = !texto; } }));
       $('soloMirar').textContent = 'Las fechas, el centro, quién entra, los objetivos y los cursos se cambian aquí; subir ficheros y la contraseña de GitHub, no.';
-      $('rehacerBoton').addEventListener('click', function () { window.rehacerTodoNuevo_(); });
     }
     try { await P.cargarGeneral(); } catch (e) { window.avisar(e.message, 'error'); }
     var elegido = cursos.indexOf(IND.enMarcha) !== -1 ? IND.enMarcha : cursos[0];

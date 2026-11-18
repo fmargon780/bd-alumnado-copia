@@ -52,12 +52,3 @@ function leerPdfResolucion_() {
   input.click();
 }
 
-/* «Rehacer todo desde cero» (solo quien gestiona; el servidor lo rechaza a los demás): olvida lo leído, las huellas y las marcas, y pone la marca «hay algo nuevo» para que se rehaga ya. */
-function rehacerTodoNuevo_() {
-  if (!confirm('¿Rehacer todo desde cero? Olvida lo que la app tenía guardado de la última vez y vuelve a leer y escribir todo: tarda más que una actualización normal.')) return;
-  limpiarAviso();
-  llamar('webRehacerTodo').then(function (r) {
-    if (r && r.ok === false) { avisar(r.motivo || 'No he podido rehacerlo ahora.', 'error'); return; }
-    avisar('Hecho. En unos minutos la app lo rehace sola.', 'aviso aviso-verde');
-  }).catch(function (e) { avisar('No he podido pedirlo. ' + mensajeDeError(e), 'error'); });
-}

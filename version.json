@@ -1,6 +1,6 @@
 {
   "version": "web nueva v4",
-  "commit": "3321d0b",
+  "commit": "0905a2c",
   "ficheros": {
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "ABRIR LA WEB NUEVA DE BD.html": "e77c63a8a2ab49fa48961774ff9c82852ee579f3fc79af1b390db508dc7d1b2a",
@@ -8,7 +8,8 @@
     "arranque.js": "427b176cb977d1af257d6b3becc35763ba52dc65a79a93a3949a9419172d43f8",
     "buscar.js": "1461c205ec579ce0126de09ca2d23ab6b61601ebc59d732cb2337145039b9c9c",
     "carpeta.js": "6758f313703e6bc7ddf118331f653b25caf6d78b797b0d8cd8a23bf47df9cfe2",
-    "commit.js": "962e1e869b36ac79c309404604b7d95f372a4bb7a7068a0c05ac661288d85bc9",
+    "centro-datos-web.js": "76af43d4b6269c199c535e5e211c5b612cff18d603753979c9c462c3a23aadac",
+    "commit.js": "cecf18f1f2e37107d7fa76045db4e5328b03aec744d346d17dfa597276d00986",
     "datos-base.css": "15244e3b102534d8db9803d4a17d8d6259f78f9b371da438a5b8555b9436575c",
     "datos-calendario.js": "b2c63da8a7e74e8afe7a9946a76e4200f72e58c179fc7e2e01edf84965f96215",
     "datos-cambios.js": "7e3b8228eeb240593e865782cf750afdd2b808814e5a257324c1219649a9c0fa",

@@ -59,7 +59,7 @@
     try { var j = revivir(await privada.leerJson(FICHERO_ENTRADAS)); entradas = { hojas: j.hojas || {}, notas: j.notas || {}, hora: j.hora || '' }; } catch (err) { /* sin el fichero de Google se calcula sin él y se dice (`faltan`) */ }
     var carpetas = {}; carpetas[CARPETA_DATOS] = ficheros;
     if (hayExpedientes) { carpetas['Expedientes Primaria'] = expedientes['Expedientes Primaria']; carpetas['Expedientes Secundaria'] = expedientes['Expedientes Secundaria']; }
-    var r = G.CuentasWeb.calcular({ carpetas: carpetas, hojas: entradas.hojas, notas: entradas.notas, centro: o.datosCentro, quiere: o.quiere, curso: indice.cursoActual || undefined });
+    var r = G.CuentasWeb.calcular({ carpetas: carpetas, hojas: entradas.hojas, notas: entradas.notas, centro: o.datosCentro, quiere: o.quiere, clave: o.clave, curso: indice.cursoActual || undefined });
     r.curso = indice.cursoActual || '26-27';
     r.hora = C.horaDeLosDatos(indice, usadas);
     r.ficheros = ficheros.length;

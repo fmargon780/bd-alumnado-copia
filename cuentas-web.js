@@ -1,7 +1,7 @@
 /* Las cuentas en el navegador (instrucción 171, tramo 2): con los ficheros de Séneca (que da centro-datos-web.js) y el programa de las cuentas (cuentas-programa.js, salido de los .gs) monta la tabla del alumnado, los avisos,
    el cuadre de Séneca contra Jefatura, la comprobación de la matrícula, el censo NEAE y los expedientes, en la memoria de la página. Las reglas son las mismas líneas de los .gs: aquí no se reescribe ninguna.
    `calcular(entradas)`: entradas = { carpetas: { 'Datos de matrícula': [{ nombre, bytes, fecha }], 'Expedientes Primaria': [...], 'Expedientes Secundaria': [...] },
-   notas: { 'EV 1º ESO': filas } (el cuaderno de notas), hojas: { nombre: filas } (lo que el programa lee de pestañas: el reparto de la mesa, las correcciones…; hasta la fila 172 lo deja Google), centro: { nombre, codigo }, curso, preparar(mundo, programa) (solo para pruebas) }.
+   notas: { 'EV 1º ESO': filas } (el cuaderno de notas), clave (la ficha de un alumno), hojas: { nombre: filas } (lo que el programa lee de pestañas: el reparto de la mesa, las correcciones…; hasta la fila 172 lo deja Google), centro: { nombre, codigo }, curso, preparar(mundo, programa) (solo para pruebas) }.
    Devuelve { hojas: { ALUMNADO, AVISOS, MATRÍCULA… : filas }, ms }. Hace dos vueltas, como la puesta al día de siempre: la primera deja la tabla con la que la segunda cruza el reparto de la mesa. */
 (function () {
   'use strict';
@@ -34,8 +34,17 @@
     var cuadre = ok ? P.leer('escribirCuadre_')() : null;   // el cuadre va pegado a la tabla: su dato solo existe en la memoria de esa vuelta
     /* El listado de la web nueva (ListadoWeb.gs): las mismas filas [clave, nombre, unidad, máscara] que deja Google en `_listado-<curso>.json`, hechas con la tabla de ahora. */
     var quiere = entradas.quiere || ['listado'], curso = entradas.curso || '26-27';
-    var listado = null;
-    if (ok && quiere.indexOf('listado') !== -1) { try { listado = P.leer('listadoWebFilas_')(P.leer('alumnadoLigero_')(curso).alumnos); } catch (e) { listado = null; } }
+    var listado = null, ligero = null;
+    if (ok && (quiere.indexOf('listado') !== -1 || quiere.indexOf('ficha') !== -1)) { try { ligero = P.leer('alumnadoLigero_')(curso); } catch (e) { ligero = null; } }
+    if (ligero && quiere.indexOf('listado') !== -1) { try { listado = P.leer('listadoWebFilas_')(ligero.alumnos); } catch (e) { listado = null; } }
+    /* La ficha de UN alumno (FichaWeb.gs): el mismo registro que deja Google en `_ficha-<curso>-<unidad>.json`. */
+    var ficha = null;
+    if (ligero && quiere.indexOf('ficha') !== -1 && entradas.clave) {
+      try {
+        var alumno = ligero.alumnos.filter(function (x) { return x.clave === entradas.clave; })[0];
+        if (alumno) ficha = { unidad: alumno.unidad || '', curso: alumno.curso || '', registro: P.leer('fichaWebRegistro_')(alumno, P.leer('webFichaExtra')(curso), P.leer('webHistoricoCursos')(curso), P.leer('fichaWebMaterias_')()) };
+      } catch (e) { ficha = null; }
+    }
     /* «Revisión» de la web nueva (RevisionWeb.gs): la lectura `webRevision` (avisos, matrícula, cuadre, cambios para Séneca), las tres tablas del cuadre y la oferta, como los deja Google en `_revision-<curso>.json`. */
     var revision = null;
     if (ok && quiere.indexOf('revision') !== -1) {
@@ -53,7 +62,7 @@
     var salida = {};
     SALIDAS.forEach(function (n) { salida[n] = mundo.libro.hojas[n] ? mundo.libro.hojas[n].filas : []; });
     var faltan = ENTRADAS.filter(function (n) { return !hojas[n]; });   // las que no se han pasado: la tabla sale como si estuvieran vacías, y la página lo tiene que decir
-    return { ok: ok === true, faltan: faltan, listado: listado, revision: revision, estadisticas: estadisticas, resumen: resumen, version: P.leer('VERSION_BD'), hojas: salida, cuadre: cuadre ? { sinExplicar: cuadre.sinExplicar, personas: cuadre.personas, materias: cuadre.materias, controles: cuadre.controles } : null, ms: Date.now() - t0 };
+    return { ok: ok === true, faltan: faltan, listado: listado, revision: revision, estadisticas: estadisticas, ficha: ficha, resumen: resumen, version: P.leer('VERSION_BD'), hojas: salida, cuadre: cuadre ? { sinExplicar: cuadre.sinExplicar, personas: cuadre.personas, materias: cuadre.materias, controles: cuadre.controles } : null, ms: Date.now() - t0 };
   }
 
   G.CuentasWeb = { SALIDAS: SALIDAS, ENTRADAS: ENTRADAS, calcular: calcular };

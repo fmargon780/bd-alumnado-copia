@@ -42,7 +42,7 @@ const CENTRO_PARTIDA_ = {
 
 /* La versión que se enseña en el panel. Codigo.gs tiene la suya; mientras
    esta exista, manda esta. */
-const VERSION_BD = 'BD v224';
+const VERSION_BD = 'BD v225';
 
 /*** BaseHojas.gs ***/
 /*** ================= NOMBRES DE PESTAÑAS, PREFIJOS Y CLAVES QUE USA TODO EL PROGRAMA =================

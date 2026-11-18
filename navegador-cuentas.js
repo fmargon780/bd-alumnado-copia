@@ -15,7 +15,7 @@
   async function cargarPrograma() { for (var i = 0; i < PROGRAMA.length; i++) await cargarScript(PROGRAMA[i]); }
   function estado(texto, error) { var e = $('estadoCuentas'); e.textContent = texto || ''; e.className = 'suave' + (error ? ' estado-error' : ''); e.hidden = !texto; }
 
-  /* `o`: { privada (CarpetaWeb), curso, quiere: ['listado'] | ['revision'], usar(resultado) (cambia la pantalla y da la línea de arriba, o lanza un error), lineaHora(iso) }. */
+  /* `o`: { privada (CarpetaWeb), curso, quiere: ['listado'] | ['revision'] | ['estadisticas'] | ['ficha'], clave (para la ficha), usar(resultado) (cambia la pantalla y da la línea de arriba, o lanza un error), lineaHora(iso) }. */
   async function arrancar(o) {
     $('cuentasNavegador').hidden = false;
     estado('Preparando las cuentas en este ordenador…');
@@ -35,7 +35,7 @@
     estado('Calculando con los ficheros de Séneca…');
     try {
       var t0 = performance.now();
-      var res = await G.CuentasCarga.cargar({ centro: C, privada: o.privada, datosCentro: { nombre: '', codigo: '' }, quiere: o.quiere });
+      var res = await G.CuentasCarga.cargar({ centro: C, privada: o.privada, datosCentro: { nombre: '', codigo: '' }, quiere: o.quiere, clave: o.clave });
       if (!res.ok || o.quiere.some(function (q) { return !res[q]; })) throw new Error('Las cuentas no han terminado bien. Se queda lo de siempre.');
       if (o.curso !== res.curso) throw new Error('Este ordenador solo calcula el curso en marcha (' + res.curso + '). Se queda lo de siempre.');
       o.usar(res, o.lineaHora(res.hora).replace(/^Datos/, 'Datos de Séneca') + ' · calculados en este ordenador');

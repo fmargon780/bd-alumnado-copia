@@ -1,7 +1,7 @@
 /* Las cuentas en el navegador (instrucción 171, tramo 2): con los ficheros de Séneca (que da centro-datos-web.js) y el programa de las cuentas (cuentas-programa.js, salido de los .gs) monta la tabla del alumnado, los avisos,
    el cuadre de Séneca contra Jefatura, la comprobación de la matrícula, el censo NEAE y los expedientes, en la memoria de la página. Las reglas son las mismas líneas de los .gs: aquí no se reescribe ninguna.
    `calcular(entradas)`: entradas = { carpetas: { 'Datos de matrícula': [{ nombre, bytes, fecha }], 'Expedientes Primaria': [...], 'Expedientes Secundaria': [...] },
-   hojas: { nombre: filas } (lo que el programa lee de pestañas: el reparto de la mesa, las correcciones…; hasta la fila 172 lo deja Google), centro: { nombre, codigo }, curso, preparar(mundo, programa) (solo para pruebas) }.
+   notas: { 'EV 1º ESO': filas } (el cuaderno de notas), hojas: { nombre: filas } (lo que el programa lee de pestañas: el reparto de la mesa, las correcciones…; hasta la fila 172 lo deja Google), centro: { nombre, codigo }, curso, preparar(mundo, programa) (solo para pruebas) }.
    Devuelve { hojas: { ALUMNADO, AVISOS, MATRÍCULA… : filas }, ms }. Hace dos vueltas, como la puesta al día de siempre: la primera deja la tabla con la que la segunda cruza el reparto de la mesa. */
 (function () {
   'use strict';
@@ -20,6 +20,14 @@
     Object.keys(hojas).forEach(function (n) { if (!mundo.libro.hojas[n]) mundo.libro.insertSheet(n).filas = JSON.parse(JSON.stringify(hojas[n])); });
     var P = G.CuentasPrograma(mundo.A);
     P.poner('avisar_', function () {});
+    /* El cuaderno de notas de la evaluación («EV 1º ESO»…) es otro libro: el programa lo pide por su identificador. */
+    if (entradas.notas && Object.keys(entradas.notas).length) {
+      var libroNotas = { getName: function () { return 'Cuaderno de notas'; }, getSheetByName: function (n) { var f = entradas.notas[n]; return f ? { getDataRange: function () { return { getValues: function () { return f; } }; } } : null; } };
+      var abrir = mundo.A.SpreadsheetApp.openById;
+      mundo.A.SpreadsheetApp.openById = function (id) { return id === 'NOTAS' ? libroNotas : abrir(id); };
+      mundo.A.DriveApp.getFileById = function (id) { return { getId: function () { return id; }, getName: function () { return 'Cuaderno de notas'; }, getLastUpdated: function () { return new Date(entradas.notasFecha || 0); }, getMimeType: function () { return 'application/vnd.google-apps.spreadsheet'; } }; };
+      P.poner('centroIdNotas_', function () { return 'NOTAS'; });
+    }
     if (typeof entradas.preparar === 'function') entradas.preparar(mundo, P);
     P.leer('cargarHistorico')();
     var ok = P.leer('construirAlumnado')() && P.leer('construirAlumnado')();

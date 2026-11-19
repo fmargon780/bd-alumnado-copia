@@ -48,12 +48,15 @@
     }
     /* «Revisión» de la web nueva (RevisionWeb.gs): la lectura `webRevision` (avisos, matrícula, cuadre, cambios para Séneca), las tres tablas del cuadre y la oferta, como los deja Google en `_revision-<curso>.json`. */
     var revision = null;
-    if (ok && quiere.indexOf('revision') !== -1) {
+    if (ok && (quiere.indexOf('revision') !== -1 || quiere.indexOf('hoy') !== -1)) {
       try {
         try { P.leer('escribirCambiosSeneca_')(); } catch (e) { /* sin el mundo de la mesa, la lista de cambios queda vacía */ }
         revision = { rev: P.leer('revisionDatos_')(curso), cuadre: P.leer('revisionWebCuadre_')(curso), oferta: P.leer('revisionWebOferta_')(curso) };
       } catch (e) { revision = null; }
     }
+    /* «Hoy» (HoyWeb.gs): de las lecturas que lee la portada, la que sale de la tabla es `rev` (los contadores de avisos, matrícula, cuadre y cambios); las demás (calendario, admisión, documentos, mesa, tránsito) siguen siendo de Google. */
+    var hoy = null;
+    if (revision && quiere.indexOf('hoy') !== -1) { try { hoy = { rev: P.leer('hoyWebRecorte_')('rev', revision.rev) }; } catch (e) { hoy = null; } }
     /* «Estadísticas» (EstadisticasWeb.gs): los datos del curso y las materias, como los deja Google en `_estadisticas-datos-<curso>.json` y `_estadisticas-materias-<curso>.json`. */
     var estadisticas = null;
     if (ok && quiere.indexOf('estadisticas') !== -1) {
@@ -63,7 +66,7 @@
     var salida = {};
     SALIDAS.forEach(function (n) { salida[n] = mundo.libro.hojas[n] ? mundo.libro.hojas[n].filas : []; });
     var faltan = ENTRADAS.filter(function (n) { return !hojas[n]; });   // las que no se han pasado: la tabla sale como si estuvieran vacías, y la página lo tiene que decir
-    return { ok: ok === true, faltan: faltan, listado: listado, revision: revision, estadisticas: estadisticas, ficha: ficha, resumen: resumen, version: P.leer('VERSION_BD'), hojas: salida, cuadre: cuadre ? { sinExplicar: cuadre.sinExplicar, personas: cuadre.personas, materias: cuadre.materias, controles: cuadre.controles } : null, ms: Date.now() - t0 };
+    return { ok: ok === true, faltan: faltan, listado: listado, revision: revision, hoy: hoy, estadisticas: estadisticas, ficha: ficha, resumen: resumen, version: P.leer('VERSION_BD'), hojas: salida, cuadre: cuadre ? { sinExplicar: cuadre.sinExplicar, personas: cuadre.personas, materias: cuadre.materias, controles: cuadre.controles } : null, ms: Date.now() - t0 };
   }
 
   G.CuentasWeb = { SALIDAS: SALIDAS, ENTRADAS: ENTRADAS, calcular: calcular };

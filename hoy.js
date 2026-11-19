@@ -2,6 +2,7 @@
    que aún no está aquí, hay un enlace a la app de hoy. La fecha es la del ordenador, como en la app de hoy. */
 (function () {
   'use strict';
+  var BUSQUEDA = location.search;   // al cargar el programa, por si el menú cambia después la dirección
   var C = window.CarpetaWeb, E = window.EntrarWeb, D = window.HoyDibujo, X = window.EscrituraWeb;
   var CONTROL = null, ULTIMO = null, CONTESTADAS = {};   // CONTESTADAS: las líneas de «Por mirar» contestadas aquí (se quitan al momento)
   var $ = function (id) { return document.getElementById(id); };
@@ -71,6 +72,11 @@
     $('pruebas').hidden = true;
     $('hoy').hidden = false;
     window.MedidasWeb.hoy(performance.now() - T0);
+    /* Instrucción 171: los contadores de avisos, matrícula, cuadre y cambios se calculan en este ordenador (navegador-cuentas.js); lo demás de «Inicio» sigue siendo de la aplicación. */
+    if (window.NavegadorCuentas && window.NavegadorCuentas.debeArrancar(BUSQUEDA)) {
+      window.NavegadorCuentas.arrancar({ privada: C, curso: visto, quiere: ['hoy'], lineaHora: E.lineaHora,
+        usar: function (res, texto) { datos[res.curso].rev = res.hoy.rev; $('datos').textContent = texto; pintar(ULTIMO); } });
+    }
   }
 
   window.WebNueva = { resumenMedidas: function () { return window.MedidasWeb.resumen(); } };

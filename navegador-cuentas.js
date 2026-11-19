@@ -1,5 +1,5 @@
 /* Las cuentas hechas en este ordenador para una pantalla (instrucción 171: el listado, «Revisión», «Estadísticas» y la ficha). Sale primero lo de siempre (el fichero que deja Google); después la página, con la carpeta «CENTRO DE DATOS»
-   (que se elige una vez y se recuerda), hace las cuentas con los ficheros de Séneca y cambia lo que se ve por lo calculado aquí, con la hora de Séneca arriba. Si algo falla, o no hay carpeta, o el navegador no puede, se queda lo de siempre
+   (que se elige una vez y se recuerda), hace las cuentas con los ficheros de Séneca y cambia lo que se ve por lo calculado aquí, con la hora de Séneca arriba. Si algo falla (instrucción 200), se queda lo de siempre y el recuadro de arriba dice la causa; si no hay carpeta o el navegador no puede, se queda lo de siempre
    y no molesta. No guarda nada de alumnos en el ordenador. Interruptor de una línea (`ACTIVADO`): con `true` se hacen las cuentas aquí para todos y `?navegador=0` las apaga en esa visita; con `false` solo se hacen con `?navegador=1`.
    Instrucción 171, parte «quitar el parámetro»: el cambio está preparado y probado en los dos modos; está puesto en `true` (activado el 19-nov-2026 a petición de Francisco, sin la medida del Chromebook: la línea del pie dice los ms). */
 (function () {
@@ -28,13 +28,33 @@
   }
   async function cargarPrograma() { for (var i = 0; i < PROGRAMA.length; i++) await cargarScript(PROGRAMA[i]); }
   /* El recuadro solo se ve cuando hay algo que decir o que pulsar; si no, las cuentas se hacen sin ruido. El texto se pone siempre. */
-  function estado(texto, error, ver) { var e = $('estadoCuentas'); e.textContent = texto || ''; e.className = 'suave' + (error ? ' estado-error' : ''); e.hidden = !texto; $('cuentasNavegador').hidden = !ver; }
+  function estado(texto, error, ver, tecnico) {
+    var e = $('estadoCuentas'); e.textContent = texto || ''; e.className = 'suave' + (error ? ' estado-error' : ''); e.hidden = !texto; $('cuentasNavegador').hidden = !ver;
+    var d = $('detalleCuentas');   // el texto técnico del error, en letra pequeña debajo; se crea la primera vez que hace falta
+    if (!d && tecnico) { d = document.createElement('p'); d.id = 'detalleCuentas'; d.className = 'suave'; d.style.fontSize = '11px'; e.parentNode.insertBefore(d, e.nextSibling); }
+    if (d) { d.textContent = tecnico || ''; d.hidden = !tecnico; }
+  }
+  /* Instrucción 200: cuando las cuentas no terminan, la página lo dice siempre, con la causa en una frase llana y el texto técnico debajo. */
+  function causaLlana(e) {
+    var m = String((e && e.message) || e || ''), n = (e && e.name) || '';
+    if (/^No he podido cargar /.test(m)) return 'Falta un fichero del programa de las cuentas (no se ha podido cargar).';
+    if (/Este curso no se calcula aquí/.test(m)) return 'Este curso no se calcula aquí: se ven los datos de la última puesta al día.';
+    if (n === 'NotAllowedError' || n === 'SecurityError') return 'El navegador no deja leer la carpeta CENTRO DE DATOS (falta el permiso).';
+    if (n === 'NotFoundError' || /no está|no se encuentra|not found/i.test(m)) return 'Falta un fichero en la carpeta CENTRO DE DATOS.';
+    if (/carpeta/i.test(m)) return 'No se ha podido usar la carpeta CENTRO DE DATOS.';
+    return 'Fallo del programa de las cuentas.';
+  }
+  function fallo(e) {
+    var tec = ((e && e.name && e.name !== 'Error') ? e.name + ': ' : '') + String((e && e.message) || e || 'sin detalle');
+    estado('Las cuentas no se han podido hacer aquí, y se ven los datos de la última puesta al día. Causa: ' + causaLlana(e), true, true, tec);
+  }
 
   /* `o`: { privada (CarpetaWeb), curso, quiere: ['listado'] | ['revision'] | ['estadisticas'] | ['ficha'], clave (para la ficha), usar(resultado, línea de arriba) (cambia la pantalla, o lanza un error), lineaHora(iso) }. */
-  async function arrancar(o) {
+  async function arrancar(o) { try { return await hacer(o); } catch (e) { fallo(e); } }   // lo que se escape de `hacer` también se dice
+  async function hacer(o) {
     estado('', false, false);
     var tPrograma = performance.now();
-    try { await cargarPrograma(); } catch (e) { return; }   // sin el programa, se queda lo de siempre
+    try { await cargarPrograma(); } catch (e) { fallo(e); return; }   // sin el programa, se queda lo de siempre, y se dice por qué
     tPrograma = performance.now() - tPrograma;   // bajar y preparar el programa de las cuentas
     var C = G.CentroDatosWeb;
     var r = await C.recordada();
@@ -70,7 +90,7 @@
       /* Solo cifras, para que Google compare (comprobación `navegador-cuentas-igual`). Si no se puede escribir, no pasa nada. */
       try { await o.privada.escribirJson('_navegador-cuentas.json', { formato: 1, hora: new Date().toISOString(), version: res.version, curso: res.curso, horaSeneca: res.hora, sinExpedientes: res.sinExpedientes, faltan: res.faltan, ms: ms, resumen: res.resumen }); } catch (e) { /* sin él, la comprobación espera */ }
       return res;
-    } catch (e) { estado('', false, false); }   // se queda lo de siempre, sin ruido
+    } catch (e) { fallo(e); }   // se queda lo de siempre, y la página dice por qué
   }
 
   G.NavegadorCuentas = { arrancar: arrancar, debeArrancar: debeArrancar, PROGRAMA: PROGRAMA, activado: function () { return ACTIVADO; } };
